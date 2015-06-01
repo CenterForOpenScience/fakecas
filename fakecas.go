@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"encoding/xml"
+	"flag"
+	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -43,12 +45,28 @@ type ServiceResponse struct {
 	UserName     string   `xml:"cas:authenticationSuccess>cas:attributes>username"`
 }
 
+var (
+	host            = flag.String("host", "localhost:8080", "The host to bind to")
+	databasename    = flag.String("dbname", "osf20130903", "The name of your OSF database")
+	databaseaddress = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
+)
+
 func main() {
+	flag.Parse()
+
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logout", logout)
 	http.HandleFunc("/oauth2/profile", oauth)
 	http.HandleFunc("/p3/serviceValidate", serviceValidate)
-	http.ListenAndServe("localhost:8080", nil)
+
+	fmt.Println("Expecting database", *databasename, " to be running at", *databaseaddress)
+	fmt.Println("Listening on", *host)
+
+	err := http.ListenAndServe(*host, nil)
+
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -62,27 +80,30 @@ func login(w http.ResponseWriter, r *http.Request) {
 	query.Set("ticket", r.FormValue("username"))
 	redir.RawQuery = query.Encode()
 
+	fmt.Println("Logging in and redirecting to", redir)
 	http.Redirect(w, r, redir.String(), http.StatusFound)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Logging out and redirecting to", r.FormValue("service"))
 	http.Redirect(w, r, r.FormValue("service"), http.StatusFound)
 }
 
 func serviceValidate(w http.ResponseWriter, r *http.Request) {
 
-	session, err := mgo.Dial("localhost:27017")
+	session, err := mgo.Dial(*databaseaddress)
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
-	c := session.DB("osf20130903").C("user")
+	c := session.DB(*databasename).C("user")
 
 	result := User{}
 	err = c.Find(bson.M{"username": r.FormValue("ticket")}).One(&result)
 
 	if err != nil {
+		fmt.Println("User", r.FormValue("ticket"), "not found.")
 		http.NotFound(w, r)
 		return
 	}
@@ -109,13 +130,13 @@ func serviceValidate(w http.ResponseWriter, r *http.Request) {
 
 func oauth(w http.ResponseWriter, r *http.Request) {
 
-	session, err := mgo.Dial("localhost:27017")
+	session, err := mgo.Dial(*databaseaddress)
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
-	c := session.DB("osf20130903").C("user")
+	c := session.DB(*databasename).C("user")
 
 	result := User{}
 	err = c.Find(bson.M{"_id": strings.Replace(r.Header.Get("Authorization"), "Bearer ", "", 1)}).One(&result)

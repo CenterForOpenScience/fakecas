@@ -100,7 +100,7 @@ func serviceValidate(w http.ResponseWriter, r *http.Request) {
 	c := session.DB(*databasename).C("user")
 
 	result := User{}
-	err = c.Find(bson.M{"username": r.FormValue("ticket")}).One(&result)
+	err = c.Find(bson.M{"emails": r.FormValue("ticket")}).One(&result)
 
 	if err != nil {
 		fmt.Println("User", r.FormValue("ticket"), "not found.")

@@ -70,6 +70,7 @@ func main() {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	redir, err := url.Parse(r.FormValue("service"))
 
 	if err != nil {
@@ -85,11 +86,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	fmt.Println("Logging out and redirecting to", r.FormValue("service"))
 	http.Redirect(w, r, r.FormValue("service"), http.StatusFound)
 }
 
 func serviceValidate(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	session, err := mgo.Dial(*databaseaddress)
 	if err != nil {
@@ -129,6 +132,7 @@ func serviceValidate(w http.ResponseWriter, r *http.Request) {
 }
 
 func oauth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	session, err := mgo.Dial(*databaseaddress)
 	if err != nil {

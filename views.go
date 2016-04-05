@@ -9,35 +9,43 @@ import (
 	"strings"
 )
 
-func Login(c *echo.Context) error {
-	redir, err := url.Parse(c.Form("service"))
+func Login(c echo.Context) error {
+	redir, err := url.Parse(c.FormValue("service"))
 
 	if err != nil {
 		c.Error(err)
 		return nil
 	}
 
+	result := User{}
+
+	if err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
+		fmt.Println("User", c.FormValue("ticket"), "not found.")
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	if !result.IsRegistered {
+		return c.HTML(200, UNREGISTERED)
+	}
+
 	query := redir.Query()
-	query.Set("ticket", c.Form("username"))
+	query.Set("ticket", c.FormValue("username"))
 	redir.RawQuery = query.Encode()
 
 	fmt.Println("Logging in and redirecting to", redir)
-	c.Redirect(http.StatusFound, redir.String())
-	return nil
+	return c.Redirect(http.StatusFound, redir.String())
 }
 
-func Logout(c *echo.Context) error {
-	fmt.Println("Logging out and redirecting to", c.Form("service"))
-	c.Redirect(http.StatusFound, c.Form("service"))
-	return nil
+func Logout(c echo.Context) error {
+	fmt.Println("Logging out and redirecting to", c.FormValue("service"))
+	return c.Redirect(http.StatusFound, c.FormValue("service"))
 }
 
-func ServiceValidate(c *echo.Context) error {
+func ServiceValidate(c echo.Context) error {
 	result := User{}
-	err := UserCollection.Find(bson.M{"emails": c.Form("ticket")}).One(&result)
 
-	if err != nil {
-		fmt.Println("User", c.Form("ticket"), "not found.")
+	if err := UserCollection.Find(bson.M{"emails": c.FormValue("ticket")}).One(&result); err != nil {
+		fmt.Println("User", c.FormValue("ticket"), "not found.")
 		return c.NoContent(http.StatusNotFound)
 	}
 
@@ -55,10 +63,10 @@ func ServiceValidate(c *echo.Context) error {
 	return c.XML(http.StatusOK, response)
 }
 
-func OAuth(c *echo.Context) error {
+func OAuth(c echo.Context) error {
 	result := User{}
 	err := UserCollection.Find(bson.M{
-		"_id": strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", 1),
+		"_id": strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1),
 	}).One(&result)
 
 	if err != nil {

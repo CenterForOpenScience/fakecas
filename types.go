@@ -13,12 +13,13 @@ type OAuthResponse struct {
 }
 
 type User struct {
-	Id         string   `bson:"_id"`
-	Username   string   `bson:"username"`
-	Emails     []string `bson:"emails"`
-	Fullname   string   `bson:"fullname"`
-	GivenName  string   `bson:"given_name"`
-	FamilyName string   `bson:"family_name"`
+	Id           string   `bson:"_id"`
+	Username     string   `bson:"username"`
+	Emails       []string `bson:"emails"`
+	Fullname     string   `bson:"fullname"`
+	GivenName    string   `bson:"given_name"`
+	FamilyName   string   `bson:"family_name"`
+	IsRegistered bool     `bson:"is_registered"`
 }
 
 type ServiceResponse struct {

@@ -66,7 +66,7 @@ func ServiceValidate(c echo.Context) error {
 func OAuth(c echo.Context) error {
 
 	token := AccessToken{}
-	tokenId :=  strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1)
+	tokenId := strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1)
 	err := AccessTokenCollection.Find(bson.M{
 		"token_id": tokenId,
 	}).One(&token)

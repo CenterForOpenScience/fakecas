@@ -12,11 +12,12 @@ import (
 )
 
 var (
-	Host            = flag.String("host", "localhost:8080", "The host to bind to")
-	DatabaseName    = flag.String("dbname", "osf20130903", "The name of your OSF database")
-	DatabaseAddress = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
-	DatabaseSession mgo.Session
-	UserCollection  *mgo.Collection
+	Host                  = flag.String("host", "localhost:8080", "The host to bind to")
+	DatabaseName          = flag.String("dbname", "osf20130903", "The name of your OSF database")
+	DatabaseAddress       = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
+	DatabaseSession       mgo.Session
+	UserCollection        *mgo.Collection
+	AccessTokenCollection *mgo.Collection
 )
 
 func main() {
@@ -51,6 +52,7 @@ func main() {
 	defer DatabaseSession.Close()
 
 	UserCollection = DatabaseSession.DB(*DatabaseName).C("user")
+	AccessTokenCollection = DatabaseSession.DB(*DatabaseName).C("apioauth2personaltoken")
 
 	fmt.Println("Listening on", *Host)
 	e.Run(standard.New(*Host))

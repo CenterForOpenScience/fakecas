@@ -17,6 +17,7 @@ var (
 	DatabaseAddress = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
 	DatabaseSession mgo.Session
 	UserCollection  *mgo.Collection
+	AccessTokenCollection  *mgo.Collection
 )
 
 func main() {
@@ -51,6 +52,7 @@ func main() {
 	defer DatabaseSession.Close()
 
 	UserCollection = DatabaseSession.DB(*DatabaseName).C("user")
+	AccessTokenCollection = DatabaseSession.DB(*DatabaseName).C("apioauth2personaltoken")
 
 	fmt.Println("Listening on", *Host)
 	e.Run(standard.New(*Host))

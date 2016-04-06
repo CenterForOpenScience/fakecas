@@ -64,12 +64,30 @@ func ServiceValidate(c echo.Context) error {
 }
 
 func OAuth(c echo.Context) error {
+
+	token := AccessToken{}
+	tokenId :=  strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1)
+	err := AccessTokenCollection.Find(bson.M{
+		"token_id": tokenId,
+	}).One(&token)
+
+	userId := ""
+
+	if err == nil {
+		userId = token.Owner
+	}
+	if err != nil {
+		fmt.Println("Access token", tokenId, "not found")
+		userId = strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1)
+	}
+
 	result := User{}
-	err := UserCollection.Find(bson.M{
-		"_id": strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1),
+	err = UserCollection.Find(bson.M{
+		"_id": userId,
 	}).One(&result)
 
 	if err != nil {
+		fmt.Println("User", userId, "not found")
 		return c.NoContent(http.StatusNotFound)
 	}
 
@@ -79,5 +97,6 @@ func OAuth(c echo.Context) error {
 			LastName:  result.FamilyName,
 			FirstName: result.GivenName,
 		},
+		Scope: strings.Split(token.Scopes, " "),
 	})
 }

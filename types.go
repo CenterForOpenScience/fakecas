@@ -10,6 +10,7 @@ type OAuthAttributes struct {
 type OAuthResponse struct {
 	Id         string          `json:"id"`
 	Attributes OAuthAttributes `json:"attributes"`
+	Scope []string `json:"scope"`
 }
 
 type User struct {
@@ -32,5 +33,13 @@ type ServiceResponse struct {
 	FamilyName   string   `xml:"cas:authenticationSuccess>cas:attributes>cas:familyName"`
 	LongTermAuth bool     `xml:"cas:authenticationSuccess>cas:attributes>cas:longTermAuthenticationRequestTokenUsed"`
 	AccessToken  string   `xml:"cas:authenticationSuccess>cas:attributes>accessToken"`
+	AccessTokenScope  string   `xml:"cas:authenticationSuccess>cas:attributes>accessTokenScope"`
 	UserName     string   `xml:"cas:authenticationSuccess>cas:attributes>username"`
+}
+
+type AccessToken struct {
+	Id        string   `bson:"_id"`
+	Owner     string   `bson:"owner"`
+	TokenId   string   `bson:"token_id"`
+	Scopes    string   `bson:"scopes"`
 }

@@ -23,7 +23,7 @@ var (
 func main() {
 	flag.Parse()
 	e := echo.New()
-	e.Use(mw.LoggerFromConfig(mw.LoggerConfig{
+	e.Use(mw.LoggerWithConfig(mw.LoggerConfig{
 		Format: "${time_rfc3339} ${method} ${uri} ${status} ${response_time} ${response_size}\n",
 		Output: os.Stdout,
 	}))

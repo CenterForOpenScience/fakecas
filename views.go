@@ -9,31 +9,94 @@ import (
 	"strings"
 )
 
-func Login(c echo.Context) error {
-	redir, err := url.Parse(c.FormValue("service"))
+func ValidateService(c echo.Context, field string ) *url.URL {
+	service, err := url.Parse(c.QueryParam(field))
+	if err == nil {
+		fmt.Println(service.Host)
+		switch service.Host {
+		case "localhost:5000":
+			fallthrough
+		case "127.0.0.1:5000":
+			fallthrough
+		case "localhost:8000":
+			fallthrough
+		case "127.0.0.1:8000":
+			fallthrough
+		case "localhost:8080":
+			fallthrough
+		case "127.0.0.1:8080":
+			return service
+		}
+	}
+	return nil
+}
 
+func LoginPOST(c echo.Context) error {
+	service := ValidateService(c, "service")
+	if service == nil {
+		return c.HTML(http.StatusUnauthorized, NOTAUTHORIZED)
+	}
+
+	result := User{}
+	//	fakeCAS does not check password
+	err := UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result)
+	if err != nil {
+		fmt.Println("User", c.FormValue("username"), "not found.")
+		return c.HTML(http.StatusNotFound, USERNOTEXIST)
+	}
+
+	if !result.IsRegistered {
+		return c.HTML(http.StatusOK, UNREGISTERED)
+	}
+
+	query := service.Query()
+	query.Set("ticket", c.FormValue("username"))
+	service.RawQuery = query.Encode()
+
+	fmt.Println("Logging in and redirecting to", service)
+	return c.Redirect(http.StatusFound, service.String())
+}
+
+func LoginGET(c echo.Context) error {
+	service := ValidateService(c, "service")
+	if service == nil {
+		return c.HTML(http.StatusUnauthorized, NOTAUTHORIZED)
+	}
+
+	username, err := url.Parse(c.QueryParam("username"))
+	if err != nil {
+		c.Error(err)
+		return nil
+	}
+	verification_key, err := url.Parse(c.QueryParam("verification_key"))
 	if err != nil {
 		c.Error(err)
 		return nil
 	}
 
+	if username.String() == "" && verification_key.String() == "" {
+		return c.HTML(http.StatusOK, LOGINPAGE)
+	}
+
 	result := User{}
-
-	if err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
-		fmt.Println("User", c.FormValue("ticket"), "not found.")
-		return c.NoContent(http.StatusNotFound)
+	err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result)
+	if err != nil {
+		fmt.Println("User", c.FormValue("username"), "not found.")
+		return c.HTML(http.StatusNotFound, NOTAUTHORIZED)
+	}
+	// fakeCAS will check verification key
+	if result.VerificationKey != c.FormValue("verification_key") {
+		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey, 
+			"\nActural: ", c.FormValue("verification_key"))
+		return c.HTML(http.StatusUnauthorized, NOTAUTHORIZED)	
 	}
 
-	if !result.IsRegistered {
-		return c.HTML(200, UNREGISTERED)
-	}
-
-	query := redir.Query()
+	query := service.Query()
 	query.Set("ticket", c.FormValue("username"))
-	redir.RawQuery = query.Encode()
+	service.RawQuery = query.Encode()
 
-	fmt.Println("Logging in and redirecting to", redir)
-	return c.Redirect(http.StatusFound, redir.String())
+	fmt.Println("Logging in and redirecting to", service)
+	return c.Redirect(http.StatusFound, service.String())
 }
 
 func Logout(c echo.Context) error {

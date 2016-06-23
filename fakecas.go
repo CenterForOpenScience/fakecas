@@ -13,7 +13,7 @@ import (
 
 var (
 	Host                  = flag.String("host", "localhost:8080", "The host to bind to")
-	DatabaseName          = flag.String("dbname", "osf20130903", "The name of your OSF database")
+	DatabaseName          = flag.String("dbname", "osf", "The name of your OSF database")
 	DatabaseAddress       = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
 	DatabaseSession       mgo.Session
 	UserCollection        *mgo.Collection
@@ -37,8 +37,8 @@ func main() {
 		ExposedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}).Handler))
 
-	e.Get("/login", Login)
-	e.Post("/login", Login)
+	e.Get("/login", LoginGET)
+	e.Post("/login", LoginPOST)
 	e.Get("/logout", Logout)
 	e.Get("/oauth2/profile", OAuth)
 	e.Get("/p3/serviceValidate", ServiceValidate)

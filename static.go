@@ -1,49 +1,133 @@
 package main
 
-var UNREGISTERED = `<html lang="en" class=" js no-mobile desktop no-ie chrome chrome49 root-section gradient rgba opacity textshadow multiplebgs boxshadow borderimage borderradius cssreflections csstransforms csstransitions no-touch no-retina fontface domloaded w-2307 gt-240 gt-320 gt-480 gt-640 gt-768 gt-800 gt-1024 gt-1280 gt-1440 gt-1680 gt-1920 no-portrait landscape" id="login-page"><head>
-  <meta charset="UTF-8">
+var NOTAUTHORIZED = `<!DOCTYPE html>
+<html>
+  <head>
+      <title>Open Science Framework | Sign In</title>
+      <link rel="icon" herf="/favicon.ico" type="image/x-icon" />
+    </head>
 
-  <title>Open Science Framework | Sign In</title>
-
-	<link rel="stylesheet" href="//staging-accounts.osf.io/css/cas.css">
-  <link rel="icon" href="//staging-accounts.osf.io/favicon.ico" type="image/x-icon">
-
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
-  <![endif]--><script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script><style type="text/css">@media print{.lpiframeoverlay{display:none}}</style></head>
-<body id="cas"><div id="lptopspacer80974089" style="height: 40px;"></div>
-  <div id="container">
-      <header>
-
-        <a id="logo" href="" title="Open Science Framework Sign In">Open Science Framework | Sign In</a>
-
-      </header>
-      <div id="content">
-
-  <div id="msg" class="errors">
-
-    <h2>Account has not been confirmed.</h2>
-    <p>This login email has been registered but not confirmed. Please check your email (and spam folder). <a href="https://staging.osf.io/resend/">Click here</a> to resend your confirmation email.</p>
-  </div>
-
-    <div class="row" style="text-align: center;">
-        <hr>
-        <a href="https://staging.osf.io/">Back to OSF</a>
+    <body>
+      <div id="header">
+          <span>Open Science Framwork Central Authentication System</span>
+      </div>
+      <div id="message">
+          <p>The service you attempted to authenticate to is not authorized to use CAS.</p>
     </div>
-</div> <!-- END #content -->
+      <div id="links">
+        <section>
+          <a id="forgot-password" href="http://localhost:5000/forgotpassword/">Forgot Your Password?</a></br>
+          <a id="institution-login" href="http://localhost:5000/login/?campaign=institution&redirect_url=http://localhost:5000/">Login Through Your Institution</a></br>
+          <a id="back-to-osf" href="http://localhost:5000/">Back to OSF</a></br>
+          <a id="create-account" href="http://localhost:5000/register/">Create Account</a>
+        </section>
+      </div>
+    </body>
+</html>`
 
-<footer>
-    <div class="copyright">
-        <div class="row">
-            <p>Copyright © 2011-2015 <a href="http://centerforopenscience.org">Center for Open Science</a> |
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/TERMS_OF_USE.md">Terms of Use</a> |
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/PRIVACY_POLICY.md">Privacy Policy</a>
-            </p>
-        </div>
+var USERNOTEXIST = `<!DOCTYPE html>
+<html>
+  <head>
+      <title>Open Science Framework | Sign In</title>
+      <link rel="icon" herf="/favicon.ico" type="image/x-icon" />
+    </head>
+
+    <body>
+      <div id="header">
+          <span>Open Science Framwork Central Authentication System</span>
+      </div>
+      <div id="forms">
+          <form id="login" action="/login?service=http://localhost:5000" method="post">
+            <section>
+              <span>Email:</span></br>
+              <input id="username" name="username" type="text" value="" size="">
+            </section>
+            <section>
+              <span>Password</span></br>
+              <input id="password" name="password" type="password" value="" size=""></div>
+            </section>
+            <section>
+              <input id="submit" type="submit" value="Sign In"/><span>Wrong user or password.</span>
+            </section>
+            <section>
+              <input id="persistence" type="checkbox" value="true" checked/>
+              <label id="for-persistence">Stay Signed In</label>
+            </section>
+        </form>
     </div>
-</footer>
+      <div id="links">
+        <section>
+          <a id="forgot-password" href="http://localhost:5000/forgotpassword/">Forgot Your Password?</a></br>
+          <a id="institution-login" href="http://localhost:5000/login/?campaign=institution&redirect_url=http://localhost:5000/">Login Through Your Institution</a></br>
+          <a id="back-to-osf" href="http://localhost:5000/">Back to OSF</a></br>
+          <a id="create-account" href="http://localhost:5000/register/">Create Account</a>
+        </section>
+      </div>
+    </body>
+</html>`
 
-</div> <!-- END #container -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
-<script type="text/javascript" src="//staging-accounts.osf.io/js/cas.js"></script>`
+var UNREGISTERED = `<!DOCTYPE html>
+<html>
+  <head>
+      <title>Open Science Framework | Sign In</title>
+      <link rel="icon" herf="/favicon.ico" type="image/x-icon" />
+    </head>
+
+    <body>
+      <div id="header">
+          <span>Open Science Framwork Central Authentication System</span>
+      </div>
+      <div id="message">
+          <p>This login email has been registered but not confirmed. Please check your email (and spam folder). <a href="http://localhost:5000/resend/">Click here</a> to resend your confirmation email.</p>
+    </div>
+      <div id="links">
+        <section>
+          <a id="forgot-password" href="http://localhost:5000/forgotpassword/">Forgot Your Password?</a></br>
+          <a id="institution-login" href="http://localhost:5000/login/?campaign=institution&redirect_url=http://localhost:5000/">Login Through Your Institution</a></br>
+          <a id="back-to-osf" href="http://localhost:5000/">Back to OSF</a></br>
+          <a id="create-account" href="http://localhost:5000/register/">Create Account</a>
+        </section>
+      </div>
+    </body>
+</html>`
+
+var LOGINPAGE = `<!DOCTYPE html>
+<html>
+  <head>
+      <title>Open Science Framework | Sign In</title>
+      <link rel="icon" herf="/favicon.ico" type="image/x-icon" />
+    </head>
+
+    <body>
+      <div id="header">
+          <span>Open Science Framwork Central Authentication System</span>
+      </div>
+      <div id="forms">
+          <form id="login" action="/login?service=http://localhost:5000" method="post">
+            <section>
+              <span>Email:</span></br>
+              <input id="username" name="username" type="text" value="" size="">
+            </section>
+            <section>
+              <span>Password</span></br>
+              <input id="password" name="password" type="password" value="" size=""></div>
+            </section>
+            <section>
+              <input id="submit" type="submit" value="Sign In"/>
+            </section>
+            <section>
+              <input id="persistence" type="checkbox" value="true" checked/>
+              <label id="for-persistence">Stay Signed In</label>
+            </section>
+        </form>
+    </div>
+      <div id="links">
+        <section>
+          <a id="forgot-password" href="http://localhost:5000/forgotpassword/">Forgot Your Password?</a></br>
+          <a id="institution-login" href="http://localhost:5000/login/?campaign=institution&redirect_url=http://localhost:5000/">Login Through Your Institution</a></br>
+          <a id="back-to-osf" href="http://localhost:5000/">Back to OSF</a></br>
+          <a id="create-account" href="http://localhost:5000/register/">Create Account</a>
+        </section>
+      </div>
+    </body>
+</html>`

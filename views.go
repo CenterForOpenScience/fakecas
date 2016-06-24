@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func ValidateService(c echo.Context, field string ) *url.URL {
+func ValidateService(c echo.Context, field string) *url.URL {
 	service, err := url.Parse(c.QueryParam(field))
 	if err == nil {
 		fmt.Println(service.Host)
@@ -33,8 +33,8 @@ func ValidateService(c echo.Context, field string ) *url.URL {
 
 func LoginPOST(c echo.Context) error {
 	data := new(TemplateData)
-	
-	service := ValidateService(c, "service")	
+
+	service := ValidateService(c, "service")
 	if service == nil {
 		data.NotAuthorized = true
 		return c.Render(http.StatusUnauthorized, "login", data)
@@ -95,10 +95,10 @@ func LoginGET(c echo.Context) error {
 	}
 	// fakeCAS will check verification key
 	if result.VerificationKey != c.FormValue("verification_key") {
-		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey, 
+		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey,
 			"\nActural: ", c.FormValue("verification_key"))
 		data.NotValid = true
-		return c.Render(http.StatusNotFound, "login", data)	
+		return c.Render(http.StatusNotFound, "login", data)
 	}
 
 	query := service.Query()

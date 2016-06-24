@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	mw "github.com/labstack/echo/middleware"
 	"github.com/rs/cors"
 	"gopkg.in/mgo.v2"
+	"html/template"
 	"os"
 )
 
@@ -38,7 +38,7 @@ func main() {
 		ExposedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}).Handler))
 
-	t := &Template {templates: template.Must(template.ParseGlob("static/*.html")),}
+	t := &Template{templates: template.Must(template.ParseGlob("static/*.html"))}
 	e.SetRenderer(t)
 
 	e.Get("/login", LoginGET)

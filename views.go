@@ -32,21 +32,26 @@ func ValidateService(c echo.Context, field string ) *url.URL {
 }
 
 func LoginPOST(c echo.Context) error {
-	service := ValidateService(c, "service")
+	data := new(TemplateData)
+	
+	service := ValidateService(c, "service")	
 	if service == nil {
-		return c.HTML(http.StatusUnauthorized, NOTAUTHORIZED)
+		data.NotAuthorized = true
+		return c.Render(http.StatusUnauthorized, "login", data)
 	}
-
 	result := User{}
 	//	fakeCAS does not check password
 	err := UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result)
 	if err != nil {
 		fmt.Println("User", c.FormValue("username"), "not found.")
-		return c.HTML(http.StatusNotFound, USERNOTEXIST)
+		data.LoginForm = true
+		data.NotExist = true
+		return c.Render(http.StatusOK, "login", data)
 	}
 
 	if !result.IsRegistered {
-		return c.HTML(http.StatusOK, UNREGISTERED)
+		data.NotRegistered = true
+		return c.Render(http.StatusOK, "login", data)
 	}
 
 	query := service.Query()
@@ -58,9 +63,12 @@ func LoginPOST(c echo.Context) error {
 }
 
 func LoginGET(c echo.Context) error {
+	data := new(TemplateData)
+
 	service := ValidateService(c, "service")
 	if service == nil {
-		return c.HTML(http.StatusUnauthorized, NOTAUTHORIZED)
+		data.NotAuthorized = true
+		return c.Render(http.StatusUnauthorized, "login", data)
 	}
 
 	username, err := url.Parse(c.QueryParam("username"))
@@ -73,22 +81,24 @@ func LoginGET(c echo.Context) error {
 		c.Error(err)
 		return nil
 	}
-
 	if username.String() == "" && verification_key.String() == "" {
-		return c.HTML(http.StatusOK, LOGINPAGE)
+		data.LoginForm = true
+		return c.Render(http.StatusOK, "login", data)
 	}
 
 	result := User{}
 	err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result)
 	if err != nil {
 		fmt.Println("User", c.FormValue("username"), "not found.")
-		return c.HTML(http.StatusNotFound, NOTAUTHORIZED)
+		data.NotValid = true
+		return c.Render(http.StatusNotFound, "login", data)
 	}
 	// fakeCAS will check verification key
 	if result.VerificationKey != c.FormValue("verification_key") {
 		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey, 
 			"\nActural: ", c.FormValue("verification_key"))
-		return c.HTML(http.StatusUnauthorized, NOTAUTHORIZED)	
+		data.NotValid = true
+		return c.Render(http.StatusNotFound, "login", data)	
 	}
 
 	query := service.Query()

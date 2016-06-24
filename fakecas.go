@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	mw "github.com/labstack/echo/middleware"
@@ -13,7 +14,7 @@ import (
 
 var (
 	Host                  = flag.String("host", "localhost:8080", "The host to bind to")
-	DatabaseName          = flag.String("dbname", "osf", "The name of your OSF database")
+	DatabaseName          = flag.String("dbname", "osf20130903", "The name of your OSF database")
 	DatabaseAddress       = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
 	DatabaseSession       mgo.Session
 	UserCollection        *mgo.Collection
@@ -36,6 +37,9 @@ func main() {
 		AllowedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 		ExposedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}).Handler))
+
+	t := &Template {templates: template.Must(template.ParseGlob("static/*.html")),}
+	e.SetRenderer(t)
 
 	e.Get("/login", LoginGET)
 	e.Post("/login", LoginPOST)

@@ -1,6 +1,11 @@
 package main
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"github.com/labstack/echo"
+	"html/template"
+	"io"
+)
 
 type OAuthAttributes struct {
 	LastName  string `json:"lastName"`
@@ -43,4 +48,20 @@ type AccessToken struct {
 	Owner   string `bson:"owner"`
 	TokenId string `bson:"token_id"`
 	Scopes  string `bson:"scopes"`
+}
+
+type Template struct {
+	templates *template.Template
+}
+
+type TemplateData struct {
+	LoginForm bool
+	NotExist bool
+	NotValid bool
+	NotAuthorized bool
+	NotRegistered bool
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
 }

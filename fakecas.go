@@ -22,7 +22,7 @@ var (
 	AccessTokenCollection *mgo.Collection
 )
 
-var templateGlobal = NewTemplateGlobal(*Host, *OSFHost)
+var templateGlobal = NewTemplateGlobal()
 
 func main() {
 	flag.Parse()

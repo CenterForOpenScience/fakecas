@@ -30,7 +30,7 @@
     {{end}}
     {{if .LoginForm}}
     <div id="forms">
-      <form id="login" action="/login?service=http://localhost:5000" method="post">
+      <form id="login" action="{{.CASLogin}}" method="post">
         <section>
           <span>Email:</span>&nbsp;&nbsp;
           <input id="username" name="username" type="text" value="" size="">&nbsp;&nbsp;

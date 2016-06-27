@@ -5,7 +5,8 @@ import (
 	"github.com/labstack/echo"
 	"html/template"
 	"io"
-	// "net/url"
+	"net/url"
+	"fmt"
 )
 
 type OAuthAttributes struct {
@@ -74,7 +75,17 @@ type TemplateGlobal struct {
 	OSFInstituionLogin string
 }
 
-func NewTemplateGlobal(casDomain, osfDomain string) *TemplateGlobal {
-	templateGlobal := new(TemplateGlobal)
+func NewTemplateGlobal() *TemplateGlobal {
+	templateGlobal := new(TemplateGlobal)	
+	templateGlobal.CASLogin = GetCasLoginUrl("http://" + *OSFHost + "/dashboard")
+	fmt.Println(templateGlobal.CASLogin)
 	return templateGlobal
+}
+
+func GetCasLoginUrl(service string) string {
+	casLogin, err := url.Parse("http://" + *Host + "/login?service=" + service)
+	if err != nil {
+		panic(err)
+	}
+	return casLogin.String()
 }

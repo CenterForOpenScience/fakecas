@@ -86,6 +86,7 @@ func LoginGET(c echo.Context) error {
 	}
 	if username.String() == "" && verification_key.String() == "" {
 		data.LoginForm = true
+		data.CASLogin = GetCasLoginUrl(service.String())
 		return c.Render(http.StatusOK, "login", data)
 	}
 

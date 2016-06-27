@@ -38,8 +38,12 @@ func main() {
 		ExposedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}).Handler))
 
-	t := &Template{templates: template.Must(template.ParseGlob("static/*.html"))}
-	e.SetRenderer(t)
+	t, err := template.New("login").Parse(LOGINPAGE)
+	if err != nil {
+		panic(err)
+	}
+	temp := &Template{templates: t}
+	e.SetRenderer(temp)
 
 	e.Get("/login", LoginGET)
 	e.Post("/login", LoginPOST)

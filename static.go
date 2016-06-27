@@ -1,4 +1,6 @@
-{{define "login"}}
+package main
+
+var LOGINPAGE = `{{define "login"}}
 
 <!DOCTYPE html>
 <html>
@@ -59,4 +61,4 @@
   </body>
 </html>
 
-{{end}}
+{{end}}`

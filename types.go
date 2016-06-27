@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo"
 	"html/template"
 	"io"
+	// "net/url"
 )
 
 type OAuthAttributes struct {
@@ -54,14 +55,26 @@ type Template struct {
 	templates *template.Template
 }
 
-type TemplateData struct {
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+type TemplateGlobal struct {
+	// login flow
 	LoginForm     bool
 	NotExist      bool
 	NotValid      bool
 	NotAuthorized bool
 	NotRegistered bool
+	// url
+	CASLogin           string
+	OSFDomain          string
+	OSFForgotPassword  string
+	OSFCreateAccount   string
+	OSFInstituionLogin string
 }
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+func NewTemplateGlobal(casDomain, osfDomain string) *TemplateGlobal {
+	templateGlobal := new(TemplateGlobal)
+	return templateGlobal
 }

@@ -35,7 +35,7 @@ func ValidateService(c echo.Context) *url.URL {
 }
 
 func LoginPOST(c echo.Context) error {
-	data := new(TemplateData)
+	data := templateGlobal
 
 	service := ValidateService(c)
 	if service == nil {
@@ -66,7 +66,7 @@ func LoginPOST(c echo.Context) error {
 }
 
 func LoginGET(c echo.Context) error {
-	data := new(TemplateData)
+	data := templateGlobal
 
 	service := ValidateService(c)
 	if service == nil {

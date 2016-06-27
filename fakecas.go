@@ -14,12 +14,15 @@ import (
 
 var (
 	Host                  = flag.String("host", "localhost:8080", "The host to bind to")
+	OSFHost               = flag.String("osfhost", "localhost:5000", "The osf host to bind to")
 	DatabaseName          = flag.String("dbname", "osf20130903", "The name of your OSF database")
 	DatabaseAddress       = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
 	DatabaseSession       mgo.Session
 	UserCollection        *mgo.Collection
 	AccessTokenCollection *mgo.Collection
 )
+
+var templateGlobal = NewTemplateGlobal(*Host, *OSFHost)
 
 func main() {
 	flag.Parse()

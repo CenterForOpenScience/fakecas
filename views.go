@@ -9,24 +9,27 @@ import (
 	"strings"
 )
 
-func ValidateService(c echo.Context, field string) *url.URL {
-	service, err := url.Parse(c.QueryParam(field))
+func ValidateService(c echo.Context) *url.URL {
+	service, err := url.Parse(c.QueryParam("service"))
 	if err == nil {
-		fmt.Println(service.Host)
-		switch service.Host {
-		case "localhost:5000":
-			fallthrough
-		case "127.0.0.1:5000":
-			fallthrough
-		case "localhost:8000":
-			fallthrough
-		case "127.0.0.1:8000":
-			fallthrough
-		case "localhost:8080":
-			fallthrough
-		case "127.0.0.1:8080":
-			return service
-		}
+		return service
+		// fmt.Println(service.Host)
+		// switch service.Host {
+		// case "":
+		// 	fallthrough
+		// case "localhost:5000":
+		// 	fallthrough
+		// case "127.0.0.1:5000":
+		// 	fallthrough
+		// case "localhost:8000":
+		// 	fallthrough
+		// case "127.0.0.1:8000":
+		// 	fallthrough
+		// case "localhost:8080":
+		// 	fallthrough
+		// case "127.0.0.1:8080":
+		// 	return service
+		// }
 	}
 	return nil
 }
@@ -34,7 +37,7 @@ func ValidateService(c echo.Context, field string) *url.URL {
 func LoginPOST(c echo.Context) error {
 	data := new(TemplateData)
 
-	service := ValidateService(c, "service")
+	service := ValidateService(c)
 	if service == nil {
 		data.NotAuthorized = true
 		return c.Render(http.StatusUnauthorized, "login", data)
@@ -65,7 +68,7 @@ func LoginPOST(c echo.Context) error {
 func LoginGET(c echo.Context) error {
 	data := new(TemplateData)
 
-	service := ValidateService(c, "service")
+	service := ValidateService(c)
 	if service == nil {
 		data.NotAuthorized = true
 		return c.Render(http.StatusUnauthorized, "login", data)

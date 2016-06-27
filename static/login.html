@@ -9,7 +9,8 @@
 
   <body>
     <div id="header">
-      <span>Open Science Framwork Central Authentication System</span>
+      <span><h3>Open Science Framwork | fakeCAS</h3></span>
+      </br>
     </div>
 
     {{if .NotRegistered}}
@@ -31,26 +32,22 @@
     <div id="forms">
       <form id="login" action="/login?service=http://localhost:5000" method="post">
         <section>
-          <span>Email:</span></br>
-          <input id="username" name="username" type="text" value="" size="">
-          </section>
-          <section>
-            <span>Password</span></br>
-            <input id="password" name="password" type="password" value="" size=""></div>
-          </section>
-          <section>
-            <input id="submit" type="submit" value="Sign In"/>
+          <span>Email:</span>&nbsp;&nbsp;
+          <input id="username" name="username" type="text" value="" size="">&nbsp;&nbsp;
+          <input id="submit" type="submit" value="Sign In"/>
             {{if .NotExist}}
-            <span>Wrong user or password.</span>
+            &nbsp;&nbsp;<span>Wrong user or password.</span>
             {{end}}
-          </section>
-          <section>
-            <input id="persistence" type="checkbox" value="true" checked/>
-            <label id="for-persistence">Stay Signed In</label>
-          </section>
-        </form>
+        </section>
+        <section hidden>
+          <input id="password", name="password", type="password", value="" size=""></br>
+          <input id="persistence" type="checkbox" value="true" checked/>
+          <label id="for-persistence">Stay Signed In</label>
+        </section>
+      </form>
     </div>
     {{end}}
+    </br>
     <div id="links">
       <section>
         <a id="forgot-password" href="http://localhost:5000/forgotpassword/">Forgot Your Password?</a></br>

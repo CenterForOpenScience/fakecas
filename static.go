@@ -11,7 +11,7 @@ var LOGINPAGE = `{{define "login"}}
 
   <body>
     <div id="header">
-      <span><h3>Open Science Framwork | fakeCAS</h3></span>
+      <span><h3>Open Science Framework | fakeCAS</h3></span>
       </br>
     </div>
 

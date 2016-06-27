@@ -99,7 +99,7 @@ func LoginGET(c echo.Context) error {
 	// fakeCAS will check verification key
 	if result.VerificationKey != c.FormValue("verification_key") {
 		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey,
-			"\nActural: ", c.FormValue("verification_key"))
+			"\nActual: ", c.FormValue("verification_key"))
 		data.NotValid = true
 		return c.Render(http.StatusNotFound, "login", data)
 	}

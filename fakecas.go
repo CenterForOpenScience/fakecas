@@ -8,11 +8,13 @@ import (
 	mw "github.com/labstack/echo/middleware"
 	"github.com/rs/cors"
 	"gopkg.in/mgo.v2"
+	"html/template"
 	"os"
 )
 
 var (
 	Host                  = flag.String("host", "localhost:8080", "The host to bind to")
+	OSFHost               = flag.String("osfhost", "localhost:5000", "The osf host to bind to")
 	DatabaseName          = flag.String("dbname", "osf20130903", "The name of your OSF database")
 	DatabaseAddress       = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
 	DatabaseSession       mgo.Session
@@ -37,8 +39,15 @@ func main() {
 		ExposedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}).Handler))
 
-	e.Get("/login", Login)
-	e.Post("/login", Login)
+	t, err := template.New("login").Parse(LOGINPAGE)
+	if err != nil {
+		panic(err)
+	}
+	temp := &Template{templates: t}
+	e.SetRenderer(temp)
+
+	e.Get("/login", LoginGET)
+	e.Post("/login", LoginPOST)
 	e.Get("/logout", Logout)
 	e.Get("/oauth2/profile", OAuth)
 	e.Get("/p3/serviceValidate", ServiceValidate)

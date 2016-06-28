@@ -1,6 +1,9 @@
 package main
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"html/template"
+)
 
 type OAuthAttributes struct {
 	LastName  string `json:"lastName"`
@@ -14,13 +17,14 @@ type OAuthResponse struct {
 }
 
 type User struct {
-	Id           string   `bson:"_id"`
-	Username     string   `bson:"username"`
-	Emails       []string `bson:"emails"`
-	Fullname     string   `bson:"fullname"`
-	GivenName    string   `bson:"given_name"`
-	FamilyName   string   `bson:"family_name"`
-	IsRegistered bool     `bson:"is_registered"`
+	Id              string   `bson:"_id"`
+	Username        string   `bson:"username"`
+	Emails          []string `bson:"emails"`
+	Fullname        string   `bson:"fullname"`
+	GivenName       string   `bson:"given_name"`
+	FamilyName      string   `bson:"family_name"`
+	IsRegistered    bool     `bson:"is_registered"`
+	VerificationKey string   `bson:"verification_key"`
 }
 
 type ServiceResponse struct {
@@ -42,4 +46,25 @@ type AccessToken struct {
 	Owner   string `bson:"owner"`
 	TokenId string `bson:"token_id"`
 	Scopes  string `bson:"scopes"`
+}
+
+type Template struct {
+	templates *template.Template
+}
+
+type TemplateGlobal struct {
+	// login flow
+	LoginForm     bool
+	NotExist      bool
+	NotValid      bool
+	NotAuthorized bool
+	NotRegistered bool
+	// cas url
+	CASLogin string
+	// osf url
+	OSFCreateAccount      string
+	OSFDomain             string
+	OSFForgotPassword     string
+	OSFInstitutionLogin   string
+	OSFResendConfirmation string
 }

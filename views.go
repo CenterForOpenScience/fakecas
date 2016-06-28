@@ -9,31 +9,84 @@ import (
 	"strings"
 )
 
-func Login(c echo.Context) error {
-	redir, err := url.Parse(c.FormValue("service"))
+func LoginPOST(c echo.Context) error {
+	data := NewTemplateGlobal()
 
+	service := ValidateService(c)
+	if service == nil {
+		data.NotAuthorized = true
+		return c.Render(http.StatusUnauthorized, "login", data)
+	}
+	result := User{}
+	// fakeCAS does not check password
+	if err := UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
+		fmt.Println("User", c.FormValue("username"), "not found.")
+		data.LoginForm = true
+		data.NotExist = true
+		data.CASLogin = GetCasLoginUrl(service.String())
+		return c.Render(http.StatusOK, "login", data)
+	}
+
+	if !result.IsRegistered {
+		data.NotRegistered = true
+		return c.Render(http.StatusOK, "login", data)
+	}
+
+	query := service.Query()
+	query.Set("ticket", c.FormValue("username"))
+	service.RawQuery = query.Encode()
+
+	fmt.Println("Logging in and redirecting to", service)
+	return c.Redirect(http.StatusFound, service.String())
+}
+
+func LoginGET(c echo.Context) error {
+	data := NewTemplateGlobal()
+
+	service := ValidateService(c)
+	if service == nil {
+		data.NotAuthorized = true
+		return c.Render(http.StatusUnauthorized, "login", data)
+	}
+
+	username, err := url.Parse(c.QueryParam("username"))
 	if err != nil {
 		c.Error(err)
 		return nil
 	}
 
+	verification_key, err := url.Parse(c.QueryParam("verification_key"))
+	if err != nil {
+		c.Error(err)
+		return nil
+	}
+
+	if username.String() == "" && verification_key.String() == "" {
+		data.LoginForm = true
+		data.CASLogin = GetCasLoginUrl(service.String())
+		return c.Render(http.StatusOK, "login", data)
+	}
+
 	result := User{}
-
 	if err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
-		fmt.Println("User", c.FormValue("ticket"), "not found.")
-		return c.NoContent(http.StatusNotFound)
+		fmt.Println("User", c.FormValue("username"), "not found.")
+		data.NotValid = true
+		return c.Render(http.StatusNotFound, "login", data)
+	}
+	// fakeCAS will check verification key
+	if result.VerificationKey != c.FormValue("verification_key") {
+		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey,
+			"\nActual: ", c.FormValue("verification_key"))
+		data.NotValid = true
+		return c.Render(http.StatusNotFound, "login", data)
 	}
 
-	if !result.IsRegistered {
-		return c.HTML(200, UNREGISTERED)
-	}
-
-	query := redir.Query()
+	query := service.Query()
 	query.Set("ticket", c.FormValue("username"))
-	redir.RawQuery = query.Encode()
+	service.RawQuery = query.Encode()
 
-	fmt.Println("Logging in and redirecting to", redir)
-	return c.Redirect(http.StatusFound, redir.String())
+	fmt.Println("Logging in and redirecting to", service)
+	return c.Redirect(http.StatusFound, service.String())
 }
 
 func Logout(c echo.Context) error {

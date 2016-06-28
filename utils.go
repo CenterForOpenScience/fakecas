@@ -6,6 +6,15 @@ import (
 	"net/url"
 )
 
+func ValidateService(c echo.Context) *url.URL {
+	service, err := url.Parse(c.QueryParam("service"))
+	// TODO: add service validation if needed
+	if err != nil {
+		service = nil
+	}
+	return service
+}
+
 func NewTemplateGlobal() *TemplateGlobal {
 	templateGlobal := new(TemplateGlobal)
 	templateGlobal.CASLogin = GetCasLoginUrl("http://" + *OSFHost + "/dashboard")

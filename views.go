@@ -9,31 +9,6 @@ import (
 	"strings"
 )
 
-func ValidateService(c echo.Context) *url.URL {
-	service, err := url.Parse(c.QueryParam("service"))
-	if err == nil {
-		return service
-		// fmt.Println(service.Host)
-		// switch service.Host {
-		// case "":
-		// 	fallthrough
-		// case "localhost:5000":
-		// 	fallthrough
-		// case "127.0.0.1:5000":
-		// 	fallthrough
-		// case "localhost:8000":
-		// 	fallthrough
-		// case "127.0.0.1:8000":
-		// 	fallthrough
-		// case "localhost:8080":
-		// 	fallthrough
-		// case "127.0.0.1:8080":
-		// 	return service
-		// }
-	}
-	return nil
-}
-
 func LoginPOST(c echo.Context) error {
 	data := NewTemplateGlobal()
 
@@ -43,9 +18,8 @@ func LoginPOST(c echo.Context) error {
 		return c.Render(http.StatusUnauthorized, "login", data)
 	}
 	result := User{}
-	//	fakeCAS does not check password
-	err := UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result)
-	if err != nil {
+	// fakeCAS does not check password
+	if err := UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
 		fmt.Println("User", c.FormValue("username"), "not found.")
 		data.LoginForm = true
 		data.NotExist = true
@@ -80,11 +54,13 @@ func LoginGET(c echo.Context) error {
 		c.Error(err)
 		return nil
 	}
+
 	verification_key, err := url.Parse(c.QueryParam("verification_key"))
 	if err != nil {
 		c.Error(err)
 		return nil
 	}
+
 	if username.String() == "" && verification_key.String() == "" {
 		data.LoginForm = true
 		data.CASLogin = GetCasLoginUrl(service.String())
@@ -92,8 +68,7 @@ func LoginGET(c echo.Context) error {
 	}
 
 	result := User{}
-	err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result)
-	if err != nil {
+	if err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
 		fmt.Println("User", c.FormValue("username"), "not found.")
 		data.NotValid = true
 		return c.Render(http.StatusNotFound, "login", data)

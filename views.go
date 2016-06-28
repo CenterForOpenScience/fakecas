@@ -35,7 +35,7 @@ func ValidateService(c echo.Context) *url.URL {
 }
 
 func LoginPOST(c echo.Context) error {
-	data := templateGlobal
+	data := NewTemplateGlobal()
 
 	service := ValidateService(c)
 	if service == nil {
@@ -49,6 +49,7 @@ func LoginPOST(c echo.Context) error {
 		fmt.Println("User", c.FormValue("username"), "not found.")
 		data.LoginForm = true
 		data.NotExist = true
+		data.CASLogin = GetCasLoginUrl(service.String())
 		return c.Render(http.StatusOK, "login", data)
 	}
 
@@ -66,7 +67,7 @@ func LoginPOST(c echo.Context) error {
 }
 
 func LoginGET(c echo.Context) error {
-	data := templateGlobal
+	data := NewTemplateGlobal()
 
 	service := ValidateService(c)
 	if service == nil {

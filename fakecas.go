@@ -22,8 +22,6 @@ var (
 	AccessTokenCollection *mgo.Collection
 )
 
-var templateGlobal = NewTemplateGlobal()
-
 func main() {
 	flag.Parse()
 	e := echo.New()

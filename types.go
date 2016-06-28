@@ -2,11 +2,7 @@ package main
 
 import (
 	"encoding/xml"
-	"github.com/labstack/echo"
 	"html/template"
-	"io"
-	"net/url"
-	"fmt"
 )
 
 type OAuthAttributes struct {
@@ -56,10 +52,6 @@ type Template struct {
 	templates *template.Template
 }
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-
 type TemplateGlobal struct {
 	// login flow
 	LoginForm     bool
@@ -67,25 +59,12 @@ type TemplateGlobal struct {
 	NotValid      bool
 	NotAuthorized bool
 	NotRegistered bool
-	// url
-	CASLogin           string
-	OSFDomain          string
-	OSFForgotPassword  string
-	OSFCreateAccount   string
-	OSFInstituionLogin string
-}
-
-func NewTemplateGlobal() *TemplateGlobal {
-	templateGlobal := new(TemplateGlobal)	
-	templateGlobal.CASLogin = GetCasLoginUrl("http://" + *OSFHost + "/dashboard")
-	fmt.Println(templateGlobal.CASLogin)
-	return templateGlobal
-}
-
-func GetCasLoginUrl(service string) string {
-	casLogin, err := url.Parse("http://" + *Host + "/login?service=" + service)
-	if err != nil {
-		panic(err)
-	}
-	return casLogin.String()
+	// cas url
+	CASLogin string
+	// osf url
+	OSFCreateAccount      string
+	OSFDomain             string
+	OSFForgotPassword     string
+	OSFInstitutionLogin   string
+	OSFResendConfirmation string
 }

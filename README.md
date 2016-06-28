@@ -12,4 +12,5 @@ chmod +x fakecas # Make the server executable
 #   -dbaddress="localhost:27017": The address of your mongodb. ie: localhost:27017
 #   -dbname="osf20130903": The name of your OSF database
 #   -host="localhost:8080": The host to bind to
+#   -osfhost="localhost:5000": The osf host to bind to
 ```

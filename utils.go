@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/engine"
 	"io"
 	"net/url"
 )
@@ -15,9 +16,9 @@ func ValidateService(c echo.Context) *url.URL {
 	return service
 }
 
-func NewTemplateGlobal() *TemplateGlobal {
+func NewTemplateGlobal(request engine.Request) *TemplateGlobal {
 	templateGlobal := new(TemplateGlobal)
-	templateGlobal.CASLogin = GetCasLoginUrl("http://" + *OSFHost + "/dashboard")
+	templateGlobal.CASLogin = GetCasLoginUrl(request, "http://" + request.Host() + "/dashboard")
 	templateGlobal.OSFCreateAccount = GetOsfUrl("/register")
 	templateGlobal.OSFDomain = GetOsfUrl("/")
 	templateGlobal.OSFForgotPassword = GetOsfUrl("/forgotpassword")
@@ -34,8 +35,15 @@ func GetOsfUrl(path string) string {
 	return osfUrl.String()
 }
 
-func GetCasLoginUrl(service string) string {
-	casLogin, err := url.Parse("http://" + *Host + "/login?service=" + service)
+func GetCasLoginUrl(request engine.Request, service string) string {
+	host := *Host
+
+	if request != nil {
+		host = request.Host();
+	}
+
+	casLogin, err := url.Parse("http://" + host + "/login?service=" + service)
+
 	if err != nil {
 		panic(err)
 	}

@@ -35,11 +35,7 @@ func GetOsfUrl(path string) string {
 }
 
 func GetCasLoginUrl(service string) string {
-	casLogin, err := url.Parse("http://" + *Host + "/login?service=" + service)
-	if err != nil {
-		panic(err)
-	}
-	return casLogin.String()
+	return "/login?service=" + url.QueryEscape(service)
 }
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {

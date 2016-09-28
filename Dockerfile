@@ -15,8 +15,9 @@ RUN apt-get update \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN go get -d github.com/CenterForOpenScience/fakecas \
-    && cd /go/src/github.com/CenterForOpenScience/fakecas \
+COPY ./ /go/src/github.com/CenterForOpenScience/fakecas
+
+RUN cd /go/src/github.com/CenterForOpenScience/fakecas \
     && glide install \
     && go build \
     && mv /go/src/github.com/CenterForOpenScience/fakecas/fakecas /usr/local/bin/

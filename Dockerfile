@@ -19,6 +19,6 @@ RUN go get -d github.com/CenterForOpenScience/fakecas \
     && cd /go/src/github.com/CenterForOpenScience/fakecas \
     && glide install \
     && go build \
-    && mv /go/src/github.com/CenterForOpenScience/fakecas /usr/local/bin/
+    && mv /go/src/github.com/CenterForOpenScience/fakecas/fakecas /usr/local/bin/
 
 CMD ["fakecas"]

@@ -35,7 +35,7 @@ imports:
   subpackages:
   - unix
 - name: gopkg.in/mgo.v2
-  version: 29cc868a5ca65f401ff318143f9408d02f4799cc
+  version: b6121c6199b7beecde08e6853f256a6475fe8031
   subpackages:
   - bson
   - internal/sasl

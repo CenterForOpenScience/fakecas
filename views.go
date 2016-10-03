@@ -18,7 +18,7 @@ func LoginPOST(c echo.Context) error {
 		return c.Render(http.StatusUnauthorized, "login", data)
 	}
 	result := User{}
-    username := strings.ToLower(c.FormValue("username"))
+    username := strings.ToLower(strings.TrimSpace(c.FormValue("username")))
 
 	// fakeCAS does not check password
 	if err := UserCollection.Find(bson.M{"username": username}).One(&result); err != nil {

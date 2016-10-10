@@ -23,7 +23,7 @@ var (
 )
 
 func main() {
-	fmt.Println("Starting FakeCAS 0.8.0")
+	fmt.Println("Starting FakeCAS 0.9.0")
 	flag.Parse()
 	e := echo.New()
 	e.Use(mw.LoggerWithConfig(mw.LoggerConfig{

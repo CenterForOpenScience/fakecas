@@ -18,9 +18,11 @@ func LoginPOST(c echo.Context) error {
 		return c.Render(http.StatusUnauthorized, "login", data)
 	}
 	result := User{}
+	username := strings.ToLower(strings.TrimSpace(c.FormValue("username")))
+
 	// fakeCAS does not check password
-	if err := UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
-		fmt.Println("User", c.FormValue("username"), "not found.")
+	if err := UserCollection.Find(bson.M{"username": username}).One(&result); err != nil {
+		fmt.Println("User", username, "not found.")
 		data.LoginForm = true
 		data.NotExist = true
 		data.CASLogin = GetCasLoginUrl(service.String())
@@ -33,7 +35,7 @@ func LoginPOST(c echo.Context) error {
 	}
 
 	query := service.Query()
-	query.Set("ticket", c.FormValue("username"))
+	query.Set("ticket", username)
 	service.RawQuery = query.Encode()
 
 	fmt.Println("Logging in and redirecting to", service)

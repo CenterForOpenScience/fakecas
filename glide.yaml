@@ -2,9 +2,7 @@ package: github.com/CenterForOpenScience/fakecas
 import:
 - package: github.com/labstack/echo
   subpackages:
-  - engine/standard
   - middleware
-- package: github.com/rs/cors
-- package: gopkg.in/mgo.v2
-  subpackages:
-  - bson
+- package: github.com/lib/pq
+- package: github.com/labstack/gommon
+  version: 0.1.0

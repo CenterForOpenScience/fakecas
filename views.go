@@ -1,9 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/labstack/echo"
-	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,11 +17,17 @@ func LoginPOST(c echo.Context) error {
 		data.NotAuthorized = true
 		return c.Render(http.StatusUnauthorized, "login", data)
 	}
-	result := User{}
+
+	var isRegistered bool
 	username := strings.ToLower(strings.TrimSpace(c.FormValue("username")))
 
 	// fakeCAS does not check password
-	if err := UserCollection.Find(bson.M{"username": username}).One(&result); err != nil {
+	err := DatabaseConnection.QueryRow("SELECT is_registered FROM osf_osfuser WHERE username = $1 OR $1 = ANY(emails)", username).Scan(&isRegistered)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			panic(err)
+		}
 		fmt.Println("User", username, "not found.")
 		data.LoginForm = true
 		data.NotExist = true
@@ -29,7 +35,7 @@ func LoginPOST(c echo.Context) error {
 		return c.Render(http.StatusOK, "login", data)
 	}
 
-	if !result.IsRegistered {
+	if !isRegistered {
 		data.NotRegistered = true
 		return c.Render(http.StatusOK, "login", data)
 	}
@@ -57,28 +63,34 @@ func LoginGET(c echo.Context) error {
 		return nil
 	}
 
-	verification_key, err := url.Parse(c.QueryParam("verification_key"))
+	verificationKey, err := url.Parse(c.QueryParam("verification_key"))
 	if err != nil {
 		c.Error(err)
 		return nil
 	}
 
-	if username.String() == "" && verification_key.String() == "" {
+	if username.String() == "" && verificationKey.String() == "" {
 		data.LoginForm = true
 		data.CASLogin = GetCasLoginUrl(service.String())
 		return c.Render(http.StatusOK, "login", data)
 	}
 
-	result := User{}
-	if err = UserCollection.Find(bson.M{"username": c.FormValue("username")}).One(&result); err != nil {
-		fmt.Println("User", c.FormValue("username"), "not found.")
+	var verification string
+	uname := strings.ToLower(strings.TrimSpace(c.FormValue("username")))
+	err = DatabaseConnection.QueryRow("SELECT verification_key FROM osf_osfuser WHERE username = $1 OR $1 = ANY(emails)", uname).Scan(&verification)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			panic(err)
+		}
+		fmt.Println("User", uname, "not found.")
 		data.NotValid = true
 		return c.Render(http.StatusNotFound, "login", data)
 	}
+
 	// fakeCAS will check verification key
-	if result.VerificationKey != c.FormValue("verification_key") {
-		fmt.Println("Invalid Verification Key\nExpecting: ", result.VerificationKey,
-			"\nActual: ", c.FormValue("verification_key"))
+	if verification != c.FormValue("verification_key") {
+		fmt.Println("Invalid Verification Key\nExpecting: ", verification, "\nActual: ", c.FormValue("verification_key"))
 		data.NotValid = true
 		return c.Render(http.StatusNotFound, "login", data)
 	}
@@ -98,9 +110,23 @@ func Logout(c echo.Context) error {
 
 func ServiceValidate(c echo.Context) error {
 	result := User{}
+	ticket := c.FormValue("ticket")
 
-	if err := UserCollection.Find(bson.M{"emails": c.FormValue("ticket")}).One(&result); err != nil {
-		fmt.Println("User", c.FormValue("ticket"), "not found.")
+	err := DatabaseConnection.QueryRow(`
+		SELECT
+			id
+			, username
+			, given_name
+			, family_name
+		FROM osf_osfuser
+		WHERE username = $1 OR $1 = ANY(emails)
+	`, ticket).Scan(&result.Id, &result.Username, &result.GivenName, &result.Username)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			panic(err)
+		}
+		fmt.Println("User", ticket, "not found.")
 		return c.NoContent(http.StatusNotFound)
 	}
 
@@ -119,30 +145,29 @@ func ServiceValidate(c echo.Context) error {
 }
 
 func OAuth(c echo.Context) error {
+	var (
+		scopes string
+		result User
+	)
 
-	token := AccessToken{}
-	tokenId := strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1)
-	err := AccessTokenCollection.Find(bson.M{
-		"token_id": tokenId,
-	}).One(&token)
+	tokenId := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", 1)
 
-	userId := ""
+	err := DatabaseConnection.QueryRow(`
+		SELECT
+			user.id
+			, user.given_name
+			, user.family_name
+			, token.scopes
+		FROM osf_apioauth2personaltoken AS token
+		JOIN osf_osfuser AS user ON user.id = token.owner_id
+		WHERE token_id = $1
+	`, tokenId).Scan(&result.Id, &result.Username, &result.GivenName, scopes)
 
-	if err == nil {
-		userId = token.Owner
-	}
 	if err != nil {
+		if err != sql.ErrNoRows {
+			panic(err)
+		}
 		fmt.Println("Access token", tokenId, "not found")
-		userId = strings.Replace(c.Request().Header().Get("Authorization"), "Bearer ", "", 1)
-	}
-
-	result := User{}
-	err = UserCollection.Find(bson.M{
-		"_id": userId,
-	}).One(&result)
-
-	if err != nil {
-		fmt.Println("User", userId, "not found")
 		return c.NoContent(http.StatusNotFound)
 	}
 
@@ -152,6 +177,6 @@ func OAuth(c echo.Context) error {
 			LastName:  result.FamilyName,
 			FirstName: result.GivenName,
 		},
-		Scope: strings.Split(token.Scopes, " "),
+		Scope: strings.Split(scopes, " "),
 	})
 }

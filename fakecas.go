@@ -1,69 +1,66 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
-	mw "github.com/labstack/echo/middleware"
-	"github.com/rs/cors"
-	"gopkg.in/mgo.v2"
+  "github.com/labstack/echo"
+  "github.com/labstack/echo/middleware"
+	_ "github.com/lib/pq"
 	"html/template"
 	"os"
 )
 
+var Version string
+
 var (
-	Host                  = flag.String("host", "localhost:8080", "The host to bind to")
-	OSFHost               = flag.String("osfhost", "localhost:5000", "The osf host to bind to")
-	DatabaseName          = flag.String("dbname", "osf20130903", "The name of your OSF database")
-	DatabaseAddress       = flag.String("dbaddress", "localhost:27017", "The address of your mongodb. ie: localhost:27017")
-	DatabaseSession       mgo.Session
-	UserCollection        *mgo.Collection
-	AccessTokenCollection *mgo.Collection
+	Host               = flag.String("host", "localhost:8080", "The host to bind to")
+	OSFHost            = flag.String("osfhost", "localhost:5000", "The osf host to bind to")
+	DatabaseName       = flag.String("dbname", "osf", "The name of your OSF database")
+	DatabaseAddress    = flag.String("dbaddress", "postgres://postgres@localhost:5432/osf?sslmode=disable", "The address of your postgres instance. ie: postgres://user:pass@127.0.0.1/dbname?other=args")
+	DatabaseConnection *sql.DB
 )
 
 func main() {
-	fmt.Println("Starting FakeCAS 0.9.0")
+	fmt.Printf("Starting FakeCAS %s\n", Version)
 	flag.Parse()
 	e := echo.New()
-	e.Use(mw.LoggerWithConfig(mw.LoggerConfig{
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "${time_rfc3339} ${method} ${uri} ${status} ${response_time} ${response_size}\n",
 		Output: os.Stdout,
 	}))
-	e.Use(mw.Recover())
+	e.Use(middleware.Recover())
 
-	e.Use(standard.WrapMiddleware(cors.New(cors.Options{
+  e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "PUT", "POST", "DELETE"},
-		AllowedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
-		ExposedHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
-	}).Handler))
+		AllowOrigins:   []string{"*"},
+		AllowMethods:   []string{"GET", "PUT", "POST", "DELETE"},
+		AllowHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
+		ExposeHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
+	}))
 
 	t, err := template.New("login").Parse(LOGINPAGE)
 	if err != nil {
 		panic(err)
 	}
 	temp := &Template{templates: t}
-	e.SetRenderer(temp)
+  e.Renderer = temp
 
-	e.Get("/login", LoginGET)
-	e.Post("/login", LoginPOST)
-	e.Get("/logout", Logout)
-	e.Get("/oauth2/profile", OAuth)
-	e.Get("/p3/serviceValidate", ServiceValidate)
+	e.GET("/login", LoginGET)
+	e.POST("/login", LoginPOST)
+	e.GET("/logout", Logout)
+	e.GET("/oauth2/profile", OAuth)
+	e.GET("/p3/serviceValidate", ServiceValidate)
 
 	fmt.Println("Expecting database", *DatabaseName, "to be running at", *DatabaseAddress)
 
-	DatabaseSession, err := mgo.Dial(*DatabaseAddress)
+	DatabaseConnection, err = sql.Open("postgres", *DatabaseAddress)
+
 	if err != nil {
 		panic(err)
 	}
-	defer DatabaseSession.Close()
 
-	UserCollection = DatabaseSession.DB(*DatabaseName).C("user")
-	AccessTokenCollection = DatabaseSession.DB(*DatabaseName).C("apioauth2personaltoken")
+	defer DatabaseConnection.Close()
 
-	fmt.Println("Listening on", *Host)
-	e.Run(standard.New(*Host))
+  e.Start(*Host)
 }

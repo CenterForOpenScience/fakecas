@@ -17,9 +17,15 @@ RUN apt-get update \
 
 COPY ./ /go/src/github.com/CenterForOpenScience/fakecas
 
+ARG GIT_COMMIT=
+ENV GIT_COMMIT ${GIT_COMMIT}
+
+ARG GIT_TAG=
+ENV GIT_TAG ${GIT_TAG}
+
 RUN cd /go/src/github.com/CenterForOpenScience/fakecas \
     && glide install \
-    && go build \
+    && VERSION=${GIT_TAG} make \
     && mv /go/src/github.com/CenterForOpenScience/fakecas/fakecas /usr/local/bin/
 
 CMD ["fakecas"]

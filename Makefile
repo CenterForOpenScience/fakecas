@@ -1,5 +1,5 @@
 BINARY=fakecas
-VERSION=$(shell git describe master 2&> /dev/null || echo "$${VERSION:-Unknown}")
+VERSION=$(shell git describe master 2> /dev/null || echo "$${VERSION:-Unknown}")
 BUILD_TIME=`date +%FT%T%z`
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
 BUILD_DIR=./build/

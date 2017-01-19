@@ -112,14 +112,17 @@ func ServiceValidate(c echo.Context) error {
 	result := User{}
 	ticket := c.FormValue("ticket")
 
-	// find the user by email
 	var queryString = `
-		SELECT 
-			id
-			, username
-			, given_name
-			, family_name
-		FROM osf_osfuser
+		SELECT DISTINCT
+			osf_guid._id,
+			osf_osfuser.username,
+			osf_osfuser.given_name,
+			osf_osfuser.family_name
+		From osf_guid
+			LEFT JOIN django_content_type
+			ON django_content_type.model = 'osfuser'
+			JOIN osf_osfuser
+			ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
 		WHERE username = $1 OR $1 = ANY(emails)
 	`
 	err := DatabaseConnection.QueryRow(queryString, ticket).Scan(&result.Id, &result.Username, &result.GivenName, &result.FamilyName)
@@ -130,33 +133,11 @@ func ServiceValidate(c echo.Context) error {
 		fmt.Println("User", ticket, "not found.")
 		return c.NoContent(http.StatusNotFound)
 	}
-	fmt.Println("User Found:", result.Username)
+	fmt.Println("User found: username =", result.Username, ", guid =", result.Id,)
 
-	// find the guid by user
-	var guid string
-	queryString = `
-		SELECT DISTINCT _id
-		FROM osf_guid
-		LEFT JOIN django_content_type
-			ON django_content_type.model = 'osfuser'
-		JOIN osf_osfuser
-			ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
-			WHERE osf_osfuser.id = $1
-		`
-    err1 := DatabaseConnection.QueryRow(queryString, result.Id).Scan(&guid)
-    if err != nil {
-    	if err != sql.ErrNoRows {
-    		panic(err1)
-    	} 
-    	fmt.Println("GUID not found")
-    	return c.NoContent(http.StatusNotFound)
-    }
-    fmt.Println("GUID found:", guid)
-
-    // build and return response to OSF
 	response := ServiceResponse{
 		Xmlns:       "http://www.yale.edu/tp/cas",
-		User:        guid,
+		User:        result.Id,
 		NewLogin:    true,
 		Date:        "Eh",
 		GivenName:   result.GivenName,
@@ -175,17 +156,20 @@ func OAuth(c echo.Context) error {
 
 	tokenId := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", 1)
 
-	// find the user and token scope by token
 	var queryString = `
-		SELECT
-			osf_osfuser.id
-			, osf_osfuser.username
-			, osf_osfuser.given_name
-			, osf_osfuser.family_name
-			, osf_apioauth2personaltoken.scopes
-		FROM osf_apioauth2personaltoken
-		JOIN osf_osfuser
-			ON osf_osfuser.id = osf_apioauth2personaltoken.owner_id
+		SELECT DISTINCT
+			osf_guid._id,
+			osf_osfuser.username,
+			osf_osfuser.given_name,
+			osf_osfuser.family_name,
+			osf_apioauth2personaltoken.scopes
+		FROM osf_guid
+			LEFT JOIN django_content_type
+				ON django_content_type.model = 'osfuser'
+			JOIN osf_osfuser
+				ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
+			JOIN osf_apioauth2personaltoken
+					ON osf_osfuser.id = osf_apioauth2personaltoken.owner_id
 			WHERE osf_apioauth2personaltoken.token_id = $1
 	`
 	err := DatabaseConnection.QueryRow(queryString, tokenId).Scan(&result.Id, &result.Username, &result.GivenName, &result.FamilyName, &scopes)
@@ -196,32 +180,10 @@ func OAuth(c echo.Context) error {
 		fmt.Println("Access token", tokenId, "not found")
 		return c.NoContent(http.StatusNotFound)
 	}
-	fmt.Println("User", result.Username, "found for token")
+	fmt.Println("User found for token: username =", result.Username, ", guid =", result.Id,)
 
-	// find the guid for the user
-	var guid string
-	queryString = `
-		SELECT DISTINCT _id
-		FROM osf_guid
-		LEFT JOIN django_content_type
-			ON django_content_type.model = 'osfuser'
-		JOIN osf_osfuser
-			ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
-			WHERE osf_osfuser.id = $1
-	`
-    err1 := DatabaseConnection.QueryRow(queryString, result.Id).Scan(&guid)
-    if err != nil {
-    	if err != sql.ErrNoRows {
-    		panic(err1)
-    	} 
-    	fmt.Println("GUID not found")
-    	return c.NoContent(http.StatusNotFound)
-    }
-    fmt.Println("GUID found:", guid)
-
-    // return guid with attributes to API
 	return c.JSON(200, OAuthResponse{
-		Id: guid,
+		Id: result.Id,
 		Attributes: OAuthAttributes{
 			LastName:  result.FamilyName,
 			FirstName: result.GivenName,

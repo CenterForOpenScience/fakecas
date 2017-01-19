@@ -112,16 +112,17 @@ func ServiceValidate(c echo.Context) error {
 	result := User{}
 	ticket := c.FormValue("ticket")
 
-	err := DatabaseConnection.QueryRow(`
-		SELECT
+	// find the user by email
+	var queryString = `
+		SELECT 
 			id
 			, username
 			, given_name
 			, family_name
 		FROM osf_osfuser
 		WHERE username = $1 OR $1 = ANY(emails)
-	`, ticket).Scan(&result.Id, &result.Username, &result.GivenName, &result.Username)
-
+	`
+	err := DatabaseConnection.QueryRow(queryString, ticket).Scan(&result.Id, &result.Username, &result.GivenName, &result.FamilyName)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			panic(err)
@@ -129,10 +130,33 @@ func ServiceValidate(c echo.Context) error {
 		fmt.Println("User", ticket, "not found.")
 		return c.NoContent(http.StatusNotFound)
 	}
+	fmt.Println("User Found:", result.Username)
 
+	// find the guid by user
+	var guid string
+	queryString = `
+		SELECT DISTINCT _id
+		FROM osf_guid
+		LEFT JOIN django_content_type
+			ON django_content_type.model = 'osfuser'
+		JOIN osf_osfuser
+			ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
+			WHERE osf_osfuser.id = $1
+		`
+    err1 := DatabaseConnection.QueryRow(queryString, result.Id).Scan(&guid)
+    if err != nil {
+    	if err != sql.ErrNoRows {
+    		panic(err1)
+    	} 
+    	fmt.Println("GUID not found")
+    	return c.NoContent(http.StatusNotFound)
+    }
+    fmt.Println("GUID found:", guid)
+
+    // build and return response to OSF
 	response := ServiceResponse{
 		Xmlns:       "http://www.yale.edu/tp/cas",
-		User:        result.Id,
+		User:        guid,
 		NewLogin:    true,
 		Date:        "Eh",
 		GivenName:   result.GivenName,
@@ -140,7 +164,6 @@ func ServiceValidate(c echo.Context) error {
 		AccessToken: result.Id,
 		UserName:    result.Username,
 	}
-
 	return c.XML(http.StatusOK, response)
 }
 
@@ -152,17 +175,20 @@ func OAuth(c echo.Context) error {
 
 	tokenId := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", 1)
 
-	err := DatabaseConnection.QueryRow(`
+	// find the user and token scope by token
+	var queryString = `
 		SELECT
-			user.id
-			, user.given_name
-			, user.family_name
-			, token.scopes
-		FROM osf_apioauth2personaltoken AS token
-		JOIN osf_osfuser AS user ON user.id = token.owner_id
-		WHERE token_id = $1
-	`, tokenId).Scan(&result.Id, &result.Username, &result.GivenName, scopes)
-
+			osf_osfuser.id
+			, osf_osfuser.username
+			, osf_osfuser.given_name
+			, osf_osfuser.family_name
+			, osf_apioauth2personaltoken.scopes
+		FROM osf_apioauth2personaltoken
+		JOIN osf_osfuser
+			ON osf_osfuser.id = osf_apioauth2personaltoken.owner_id
+			WHERE osf_apioauth2personaltoken.token_id = $1
+	`
+	err := DatabaseConnection.QueryRow(queryString, tokenId).Scan(&result.Id, &result.Username, &result.GivenName, &result.FamilyName, &scopes)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			panic(err)
@@ -170,9 +196,32 @@ func OAuth(c echo.Context) error {
 		fmt.Println("Access token", tokenId, "not found")
 		return c.NoContent(http.StatusNotFound)
 	}
+	fmt.Println("User", result.Username, "found for token")
 
+	// find the guid for the user
+	var guid string
+	queryString = `
+		SELECT DISTINCT _id
+		FROM osf_guid
+		LEFT JOIN django_content_type
+			ON django_content_type.model = 'osfuser'
+		JOIN osf_osfuser
+			ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
+			WHERE osf_osfuser.id = $1
+	`
+    err1 := DatabaseConnection.QueryRow(queryString, result.Id).Scan(&guid)
+    if err != nil {
+    	if err != sql.ErrNoRows {
+    		panic(err1)
+    	} 
+    	fmt.Println("GUID not found")
+    	return c.NoContent(http.StatusNotFound)
+    }
+    fmt.Println("GUID found:", guid)
+
+    // return guid with attributes to API
 	return c.JSON(200, OAuthResponse{
-		Id: result.Id,
+		Id: guid,
 		Attributes: OAuthAttributes{
 			LastName:  result.FamilyName,
 			FirstName: result.GivenName,

@@ -87,7 +87,7 @@ func LoginGET(c echo.Context) error {
 		FROM osf_osfuser
 		WHERE username = $1
 		OR EXISTS(SELECT * FROM osf_email WHERE osf_email.user_id = osf_osfuser.id AND osf_email.address = $1)
-	`, username).Scan(&verification)
+	`, uname).Scan(&verification)
 
 	if err != nil {
 		if err != sql.ErrNoRows {

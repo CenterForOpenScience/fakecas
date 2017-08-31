@@ -9,6 +9,22 @@ import (
 	"strings"
 )
 
+func RegisterGET(c echo.Context) error {
+
+	data := NewTemplateGlobal()
+
+	service := ValidateService(c)
+	if service == nil {
+		data.NotAuthorized = true
+		return c.Render(http.StatusUnauthorized, "register", data)
+	}
+	data.CASRegister = GetCasRegisterUrl(service.String())
+	data.CASLogin = GetCasLoginUrl(service.String())
+
+	data.RegisterForm = true
+	return c.Render(http.StatusOK, "register", data)
+}
+
 func LoginPOST(c echo.Context) error {
 	data := NewTemplateGlobal()
 

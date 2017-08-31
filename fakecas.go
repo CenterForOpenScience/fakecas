@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-  "github.com/labstack/echo"
-  "github.com/labstack/echo/middleware"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	_ "github.com/lib/pq"
 	"html/template"
 	"os"
@@ -31,23 +31,26 @@ func main() {
 	}))
 	e.Use(middleware.Recover())
 
-  e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
-		AllowOrigins:   []string{"*"},
-		AllowMethods:   []string{"GET", "PUT", "POST", "DELETE"},
-		AllowHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
-		ExposeHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
+		AllowHeaders:     []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
+		ExposeHeaders:    []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}))
 
-	t, err := template.New("login").Parse(LOGINPAGE)
+	t, err := template.New("fakeCAS").Parse(TEMPLATES)
 	if err != nil {
 		panic(err)
 	}
+
 	temp := &Template{templates: t}
-  e.Renderer = temp
+	e.Renderer = temp
 
 	e.GET("/login", LoginGET)
 	e.POST("/login", LoginPOST)
+	e.GET("/account/register", RegisterGET)
+	// e.POST("/account/register", RegisterPOST)
 	e.GET("/logout", Logout)
 	e.GET("/oauth2/profile", OAuth)
 	e.GET("/p3/serviceValidate", ServiceValidate)
@@ -62,5 +65,5 @@ func main() {
 
 	defer DatabaseConnection.Close()
 
-  e.Start(*Host)
+	e.Start(*Host)
 }

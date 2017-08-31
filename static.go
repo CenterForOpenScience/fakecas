@@ -1,6 +1,7 @@
 package main
 
-var LOGINPAGE = `{{define "login"}}
+var TEMPLATES = `
+{{define "login"}}
 
 <!DOCTYPE html>
 <html>
@@ -53,13 +54,66 @@ var LOGINPAGE = `{{define "login"}}
     <br>
     <div id="links">
       <section>
-        <a id="forgot-password" href={{.OSFForgotPassword}}>Forgot Your Password?</a><br>
-        <a id="institution-login" href={{.OSFInstitutionLogin}}>Login Through Your Institution</a><br>
         <a id="back-to-osf" href={{.OSFDomain}}>Back to OSF</a><br>
-        <a id="create-account" href={{.OSFCreateAccount}}>Create Account</a>
+        <a id="create-account" href={{.CASRegister}}>Create Account</a>
       </section>
     </div>
   </body>
 </html>
 
-{{end}}`
+{{end}}
+
+{{define "register"}}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Open Science Framework | Sign Up</title>
+  </head>
+
+  <body>
+    <div id="header">
+      <span><h3>Open Science Framework | fakeCAS</h3></span>
+      <br>
+    </div>
+
+    {{if .NotAuthorized}}
+      <div id="message">
+        <p>The service you attempted to authenticate to is not authorized to use CAS.</p>
+      </div>
+    {{end}}
+
+    {{if .RegisterForm}}
+      <div id="forms">
+        <form id="register" action="{{.CASRegister}}" method="post">
+          <section>
+            <span>Fullname:&nbsp;&nbsp;</span>
+            <input id="fullname" name="fullname" type="text" value="" size="" /><br><br>
+            <span>Email:&nbsp;&nbsp;</span>
+            <input id="email" name="email" type="text" value="" size="" /><br><br>
+            <span>Password:&nbsp;&nbsp;</span>
+            <input id="password" name="password" type="password" value="" size="" /><br><br>
+            <input id="submit" type="submit" value="Create Your OSF Account" /><br><br>
+            {{if .AlreadyRegistered}}
+              <span>  This email has already been registered.</span>
+            {{end}}
+            <br>
+          </section>
+          <section hidden>
+            <input id="persistence" name="persistence" type="checkbox" value="true" checked /><label id="persistence">Stay Signed In</label>
+          </section>
+        </form>
+      </div>
+    {{end}}
+    <br>
+    <div id="links">
+      <section>
+        <a id="back-to-osf" href={{.OSFDomain}}>Back to OSF</a><br>
+        <a id="sign-in" href={{.CASLogin}}>Already have and account?</a><br>
+      </section>
+    </div>
+  </body>
+</html>
+
+{{end}}
+`

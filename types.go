@@ -23,6 +23,7 @@ type User struct {
 	GivenName       string `bson:"given_name"`
 	FamilyName      string `bson:"family_name"`
 	IsRegistered    bool   `bson:"is_registered"`
+	Password        string `bson:"password"`
 	VerificationKey string `bson:"verification_key"`
 }
 
@@ -53,15 +54,17 @@ type Template struct {
 
 type TemplateGlobal struct {
 	// login flow
-	LoginForm     bool
-	NotExist      bool
-	NotValid      bool
-	NotAuthorized bool
-	NotRegistered bool
+	LoginForm         bool
+	RegisterForm      bool
+	NotExist          bool
+	NotValid          bool
+	NotAuthorized     bool
+	NotRegistered     bool
+	AlreadyRegistered bool
 	// cas url
-	CASLogin string
+	CASLogin    string
+	CASRegister string
 	// osf url
-	OSFCreateAccount      string
 	OSFDomain             string
 	OSFForgotPassword     string
 	OSFInstitutionLogin   string

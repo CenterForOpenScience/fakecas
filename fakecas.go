@@ -50,7 +50,7 @@ func main() {
 	e.GET("/login", LoginGET)
 	e.POST("/login", LoginPOST)
 	e.GET("/account/register", RegisterGET)
-	// e.POST("/account/register", RegisterPOST)
+	e.POST("/account/register", RegisterPOST)
 	e.GET("/logout", Logout)
 	e.GET("/oauth2/profile", OAuth)
 	e.GET("/p3/serviceValidate", ServiceValidate)

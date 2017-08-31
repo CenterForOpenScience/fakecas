@@ -94,10 +94,12 @@ var TEMPLATES = `
             <span>Password:&nbsp;&nbsp;</span>
             <input id="password" name="password" type="password" value="" size="" /><br><br>
             <input id="submit" type="submit" value="Create Your OSF Account" /><br><br>
-            {{if .AlreadyRegistered}}
-              <span>  This email has already been registered.</span>
+            {{if .RegisterSuccessful}}
+              <span>&nbsp;&nbsp;Registration Successful.</span><br>
             {{end}}
-            <br>
+            {{if .ShowErrorMessages}}
+              <span>&nbsp;&nbsp;Request Failed!</span><br>
+            {{end}}
           </section>
           <section hidden>
             <input id="persistence" name="persistence" type="checkbox" value="true" checked /><label id="persistence">Stay Signed In</label>

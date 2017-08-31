@@ -23,6 +23,10 @@ func NewTemplateGlobal() *TemplateGlobal {
 	templateGlobal.OSFForgotPassword = GetOsfUrl("/forgotpassword")
 	templateGlobal.OSFInstitutionLogin = GetOsfUrl("/login?campaign=institution")
 	templateGlobal.OSFResendConfirmation = GetOsfUrl("/resend")
+	templateGlobal.RegisterForm = true
+	templateGlobal.RegisterSuccessful = false
+	templateGlobal.ShowErrorMessages = false
+	templateGlobal.NotAuthorized = false
 	return templateGlobal
 }
 

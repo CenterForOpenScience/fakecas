@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,8 +22,44 @@ func RegisterGET(c echo.Context) error {
 	}
 	data.CASRegister = GetCasRegisterUrl(service.String())
 	data.CASLogin = GetCasLoginUrl(service.String())
+	return c.Render(http.StatusOK, "register", data)
+}
 
-	data.RegisterForm = true
+func RegisterPOST(c echo.Context) error {
+
+	data := NewTemplateGlobal()
+
+	service := ValidateService(c)
+	if service == nil {
+		data.NotAuthorized = true
+		return c.Render(http.StatusUnauthorized, "register", data)
+	}
+	data.CASRegister = GetCasRegisterUrl(service.String())
+	data.CASLogin = GetCasLoginUrl(service.String())
+
+	fullname := strings.TrimSpace(c.FormValue("fullname"))
+	email := strings.ToLower(strings.TrimSpace(c.FormValue("email")))
+	password := c.FormValue("password")
+
+	api_v1_url_for_register_user := "http://" + *OSFHost + "/api/v1/register/"
+	jsonStr := "{\"email1\": \"" + email + "\", \"email2\": \"" + email + "\", \"password\": \"" + password + "\", \"fullName\": \"" + fullname + "\"}"
+	byteStr := []byte(jsonStr)
+	resp, err := http.Post(api_v1_url_for_register_user, "application/json", bytes.NewBuffer(byteStr))
+	if err != nil {
+		panic(err)
+		data.ShowErrorMessages = true
+		return c.Render(http.StatusOK, "register", data)
+	}
+
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Response Body:\t", string(body))
+	if resp.StatusCode == http.StatusOK {
+		data.RegisterSuccessful = true
+	} else {
+		data.ShowErrorMessages = true
+	}
+
 	return c.Render(http.StatusOK, "register", data)
 }
 

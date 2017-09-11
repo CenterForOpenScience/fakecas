@@ -54,12 +54,10 @@ type Template struct {
 
 type TemplateGlobal struct {
 	// login flow
-	LoginForm          bool
-	RegisterForm       bool
-	NotExist           bool
-	NotValid           bool
-	NotAuthorized      bool
-	NotRegistered      bool
+	NotExist      bool
+	NotValid      bool
+	NotRegistered bool
+	// register flow
 	RegisterSuccessful bool
 	ShowErrorMessages  bool
 	// cas url

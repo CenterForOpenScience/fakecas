@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html>
+
   <head>
     <title>Open Science Framework | Sign Up</title>
   </head>
@@ -12,44 +13,50 @@
       <br>
     </div>
 
-    {{if .NotAuthorized}}
-      <div id="message">
-        <p>The service you attempted to authenticate to is not authorized to use CAS.</p>
-      </div>
-    {{end}}
+    <div id="forms">
+      <form id="register" action="{{.CASRegister}}" method="post">
+        <section>
+          <span>Fullname:&nbsp;&nbsp;</span>
+          <input id="fullname" name="fullname" type="text" value="" size="" /><br><br>
+          <span>Email:&nbsp;&nbsp;</span>
+          <input id="email" name="email" type="text" value="" size="" /><br><br>
+          <span>Password:&nbsp;&nbsp;</span>
+          <input id="password" name="password" type="password" value="" size="" /><br><br>
+          <input id="submit" type="submit" value="Create Your OSF Account" /><br><br>
+        </section>
 
-    {{if .RegisterForm}}
-      <div id="forms">
-        <form id="register" action="{{.CASRegister}}" method="post">
-          <section>
-            <span>Fullname:&nbsp;&nbsp;</span>
-            <input id="fullname" name="fullname" type="text" value="" size="" /><br><br>
-            <span>Email:&nbsp;&nbsp;</span>
-            <input id="email" name="email" type="text" value="" size="" /><br><br>
-            <span>Password:&nbsp;&nbsp;</span>
-            <input id="password" name="password" type="password" value="" size="" /><br><br>
-            <input id="submit" type="submit" value="Create Your OSF Account" /><br><br>
-            {{if .RegisterSuccessful}}
-              <span>&nbsp;&nbsp;Registration Successful.</span><br>
-            {{end}}
-            {{if .ShowErrorMessages}}
-              <span>&nbsp;&nbsp;Request Failed!</span><br>
-            {{end}}
-          </section>
-          <section hidden>
-            <input id="persistence" name="persistence" type="checkbox" value="true" checked /><label id="persistence">Stay Signed In</label>
-          </section>
-        </form>
-      </div>
-    {{end}}
-    <br>
+        <section hidden>
+          <input id="persistence" name="persistence" type="checkbox" value="true" checked />
+          <label id="persistence">Stay Signed In</label>
+        </section>
+
+        <section>
+          {{if .RegisterSuccessful}}
+            <span>
+              &nbsp;&nbsp;A new OSF account has been created. Please <a href={{.CASLogin}}>log in</a> to continue.
+            </span>
+            <br>
+          {{end}}
+          {{if .ShowErrorMessages}}
+            <span>
+              &nbsp;&nbsp;Request to create an OSF account failed! Please take a look at the fakeCAS log.
+            </span><br>
+          {{end}}
+        </section>
+      </form>
+      <br>
+    </div>
+
     <div id="links">
       <section>
         <a id="back-to-osf" href={{.OSFDomain}}>Back to OSF</a><br>
         <a id="sign-in" href={{.CASLogin}}>Already have and account?</a><br>
       </section>
+      <br>
     </div>
+
   </body>
+
 </html>
 
 {{end}}

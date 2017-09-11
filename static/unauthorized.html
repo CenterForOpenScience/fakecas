@@ -1,0 +1,28 @@
+{{define "unauthorized"}}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Open Science Framework | fakeCAS</title>
+  </head>
+
+  <body>
+    <div id="header">
+      <span><h3>Open Science Framework | fakeCAS</h3></span>
+      <br>
+    </div>
+
+    <div id="message">
+      <p>The service you attempted to authenticate to is not authorized to use CAS.</p>
+      <br>
+    </div>
+
+    <div id="links">
+      <section>
+        <a id="back-to-osf" href={{.OSFDomain}}>Back to OSF</a><br>
+      </section>
+    </div>
+  </body>
+</html>
+
+{{end}}

@@ -17,8 +17,7 @@ func RegisterGET(c echo.Context) error {
 
 	service := ValidateService(c)
 	if service == nil {
-		data.NotAuthorized = true
-		return c.Render(http.StatusUnauthorized, "register", data)
+		return c.Render(http.StatusUnauthorized, "unauthorized", data)
 	}
 	data.CASRegister = GetCasRegisterUrl(service.String())
 	data.CASLogin = GetCasLoginUrl(service.String())
@@ -31,8 +30,7 @@ func RegisterPOST(c echo.Context) error {
 
 	service := ValidateService(c)
 	if service == nil {
-		data.NotAuthorized = true
-		return c.Render(http.StatusUnauthorized, "register", data)
+		return c.Render(http.StatusUnauthorized, "unauthorized", data)
 	}
 	data.CASRegister = GetCasRegisterUrl(service.String())
 	data.CASLogin = GetCasLoginUrl(service.String())
@@ -67,9 +65,10 @@ func LoginPOST(c echo.Context) error {
 
 	service := ValidateService(c)
 	if service == nil {
-		data.NotAuthorized = true
-		return c.Render(http.StatusUnauthorized, "login", data)
+		return c.Render(http.StatusUnauthorized, "unauthorized", data)
 	}
+	data.CASRegister = GetCasRegisterUrl(service.String())
+	data.CASLogin = GetCasLoginUrl(service.String())
 
 	var isRegistered bool
 	username := strings.ToLower(strings.TrimSpace(c.FormValue("username")))
@@ -87,9 +86,7 @@ func LoginPOST(c echo.Context) error {
 			panic(err)
 		}
 		fmt.Println("User", username, "not found.")
-		data.LoginForm = true
 		data.NotExist = true
-		data.CASLogin = GetCasLoginUrl(service.String())
 		return c.Render(http.StatusOK, "login", data)
 	}
 
@@ -111,9 +108,10 @@ func LoginGET(c echo.Context) error {
 
 	service := ValidateService(c)
 	if service == nil {
-		data.NotAuthorized = true
-		return c.Render(http.StatusUnauthorized, "login", data)
+		return c.Render(http.StatusUnauthorized, "unauthorized", data)
 	}
+	data.CASRegister = GetCasRegisterUrl(service.String())
+	data.CASLogin = GetCasLoginUrl(service.String())
 
 	username, err := url.Parse(c.QueryParam("username"))
 	if err != nil {
@@ -128,7 +126,6 @@ func LoginGET(c echo.Context) error {
 	}
 
 	if username.String() == "" && verificationKey.String() == "" {
-		data.LoginForm = true
 		data.CASLogin = GetCasLoginUrl(service.String())
 		return c.Render(http.StatusOK, "login", data)
 	}
@@ -147,8 +144,7 @@ func LoginGET(c echo.Context) error {
 			panic(err)
 		}
 		fmt.Println("User", uname, "not found.")
-		data.NotValid = true
-		return c.Render(http.StatusNotFound, "login", data)
+		return c.Render(http.StatusNotFound, "invalid", data)
 	}
 
 	// fakeCAS will check verification key

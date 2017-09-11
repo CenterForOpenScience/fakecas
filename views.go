@@ -41,12 +41,11 @@ func RegisterPOST(c echo.Context) error {
 	email := strings.ToLower(strings.TrimSpace(c.FormValue("email")))
 	password := c.FormValue("password")
 
-	api_v1_url_for_register_user := "http://" + *OSFHost + "/api/v1/register/"
-	jsonStr := "{\"email1\": \"" + email + "\", \"email2\": \"" + email + "\", \"password\": \"" + password + "\", \"fullName\": \"" + fullname + "\"}"
+	api_v1_url_for_register_user := fmt.Sprintf("http://%s/api/v1/register/", *OSFHost)
+	jsonStr := fmt.Sprintf("{\"email1\": \"%s\", \"email2\": \"%s\", \"password\": \"%s\", \"fullName\": \"%s\"}", email, email, password, fullname)
 	byteStr := []byte(jsonStr)
 	resp, err := http.Post(api_v1_url_for_register_user, "application/json", bytes.NewBuffer(byteStr))
 	if err != nil {
-		panic(err)
 		data.ShowErrorMessages = true
 		return c.Render(http.StatusOK, "register", data)
 	}

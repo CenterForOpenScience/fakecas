@@ -39,10 +39,11 @@ func RegisterPOST(c echo.Context) error {
 	email := strings.ToLower(strings.TrimSpace(c.FormValue("email")))
 	password := c.FormValue("password")
 
-	api_v1_url_for_register_user := fmt.Sprintf("http://%s/api/v1/register/", *OSFHost)
-	jsonStr := fmt.Sprintf("{\"email1\": \"%s\", \"email2\": \"%s\", \"password\": \"%s\", \"fullName\": \"%s\"}", email, email, password, fullname)
+	// fakeCAS uses OSF route "register_user" (v1 api) to create a confirmed user
+	registerUserUrl := fmt.Sprintf("http://%s/api/v1/register/", *OSFHost)
+	jsonStr := fmt.Sprintf(`{"email1": "%s", "email2": "%s", "password": "%s", "fullName": "%s"}`, email, email, password, fullname)
 	byteStr := []byte(jsonStr)
-	resp, err := http.Post(api_v1_url_for_register_user, "application/json", bytes.NewBuffer(byteStr))
+	resp, err := http.Post(registerUserUrl, "application/json", bytes.NewBuffer(byteStr))
 	if err != nil {
 		data.ShowErrorMessages = true
 		return c.Render(http.StatusOK, "register", data)

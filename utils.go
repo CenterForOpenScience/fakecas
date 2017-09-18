@@ -11,6 +11,8 @@ func ValidateService(c echo.Context) *url.URL {
 	// TODO: add service validation if needed
 	if err != nil {
 		service = nil
+	} else if service.Host == "" || service.Path == "" {
+		service = nil
 	}
 	return service
 }
@@ -18,11 +20,10 @@ func ValidateService(c echo.Context) *url.URL {
 func NewTemplateGlobal() *TemplateGlobal {
 	templateGlobal := new(TemplateGlobal)
 	templateGlobal.CASLogin = GetCasLoginUrl("http://" + *OSFHost + "/dashboard")
-	templateGlobal.OSFCreateAccount = GetOsfUrl("/register")
+	templateGlobal.CASRegister = GetCasRegisterUrl("http://" + *OSFHost + "/dashboard")
 	templateGlobal.OSFDomain = GetOsfUrl("/")
-	templateGlobal.OSFForgotPassword = GetOsfUrl("/forgotpassword")
-	templateGlobal.OSFInstitutionLogin = GetOsfUrl("/login?campaign=institution")
-	templateGlobal.OSFResendConfirmation = GetOsfUrl("/resend")
+	templateGlobal.RegisterSuccessful = false
+	templateGlobal.ShowErrorMessages = false
 	return templateGlobal
 }
 
@@ -36,6 +37,10 @@ func GetOsfUrl(path string) string {
 
 func GetCasLoginUrl(service string) string {
 	return "/login?service=" + url.QueryEscape(service)
+}
+
+func GetCasRegisterUrl(service string) string {
+	return "/account/register?service=" + url.QueryEscape(service)
 }
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {

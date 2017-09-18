@@ -17,13 +17,14 @@ type OAuthResponse struct {
 }
 
 type User struct {
-	Id              string `bson:"_id"`
-	Username        string `bson:"username"`
-	Fullname        string `bson:"fullname"`
-	GivenName       string `bson:"given_name"`
-	FamilyName      string `bson:"family_name"`
-	IsRegistered    bool   `bson:"is_registered"`
-	VerificationKey string `bson:"verification_key"`
+	Id              string `"_id"`
+	Username        string `"username"`
+	Fullname        string `"fullname"`
+	GivenName       string `"given_name"`
+	FamilyName      string `"family_name"`
+	IsRegistered    bool   `"is_registered"`
+	Password        string `"password"`
+	VerificationKey string `"verification_key"`
 }
 
 type ServiceResponse struct {
@@ -41,10 +42,10 @@ type ServiceResponse struct {
 }
 
 type AccessToken struct {
-	Id      string `bson:"_id"`
-	Owner   string `bson:"owner"`
-	TokenId string `bson:"token_id"`
-	Scopes  string `bson:"scopes"`
+	Id      string `"_id"`
+	Owner   string `"owner"`
+	TokenId string `"token_id"`
+	Scopes  string `"scopes"`
 }
 
 type Template struct {
@@ -53,15 +54,16 @@ type Template struct {
 
 type TemplateGlobal struct {
 	// login flow
-	LoginForm     bool
 	NotExist      bool
 	NotValid      bool
-	NotAuthorized bool
 	NotRegistered bool
+	// register flow
+	RegisterSuccessful bool
+	ShowErrorMessages  bool
 	// cas url
-	CASLogin string
+	CASLogin    string
+	CASRegister string
 	// osf url
-	OSFCreateAccount      string
 	OSFDomain             string
 	OSFForgotPassword     string
 	OSFInstitutionLogin   string

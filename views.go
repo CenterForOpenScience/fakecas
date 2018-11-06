@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/labstack/echo"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/labstack/echo"
 )
 
 func LoginPOST(c echo.Context) error {

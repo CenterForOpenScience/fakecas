@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/labstack/echo"
 	"io"
 	"net/url"
+
+	"github.com/labstack/echo"
 )
 
 func ValidateService(c echo.Context) *url.URL {

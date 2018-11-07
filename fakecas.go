@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-  "github.com/labstack/echo"
-  "github.com/labstack/echo/middleware"
-	_ "github.com/lib/pq"
 	"html/template"
 	"os"
+
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	_ "github.com/lib/pq"
 )
 
 var Version string
@@ -31,12 +32,12 @@ func main() {
 	}))
 	e.Use(middleware.Recover())
 
-  e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
-		AllowOrigins:   []string{"*"},
-		AllowMethods:   []string{"GET", "PUT", "POST", "DELETE"},
-		AllowHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
-		ExposeHeaders:   []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
+		AllowHeaders:     []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
+		ExposeHeaders:    []string{"Range", "Content-Type", "Authorization", "X-Requested-With"},
 	}))
 
 	t, err := template.New("login").Parse(LOGINPAGE)
@@ -44,7 +45,7 @@ func main() {
 		panic(err)
 	}
 	temp := &Template{templates: t}
-  e.Renderer = temp
+	e.Renderer = temp
 
 	e.GET("/login", LoginGET)
 	e.POST("/login", LoginPOST)
@@ -62,5 +63,5 @@ func main() {
 
 	defer DatabaseConnection.Close()
 
-  e.Start(*Host)
+	e.Start(*Host)
 }

@@ -26,7 +26,7 @@ If you need the `develop` one, use `quay.io/centerforopenscience/fakecas:develop
 
 ## Pre-docker-compose
 
-Starting [18.0.0](https://github.com/CenterForOpenScience/fakecas/milestone/1), fakeCAS no longer provides downloadable binrary executables. Here is the last version [0.11.1](https://github.com/CenterForOpenScience/fakecas/releases/tag/0.11.1) that provides such a binary.
+Starting [19.0.0](https://github.com/CenterForOpenScience/fakecas/milestone/1), fakeCAS no longer provides downloadable binrary executables. Here is the last version [0.11.1](https://github.com/CenterForOpenScience/fakecas/releases/tag/0.11.1) that provides such a binary.
 
 # Develop fakeCAS
 

@@ -180,7 +180,7 @@ func OAuth(c echo.Context) error {
 				ON django_content_type.id = osf_guid.content_type_id AND object_id = osf_osfuser.id
 			JOIN osf_apioauth2personaltoken
 				ON osf_osfuser.id = osf_apioauth2personaltoken.owner_id
-		WHERE osf_apioauth2personaltoken.token_id = $1
+		WHERE osf_apioauth2personaltoken.token_id = $1 AND osf_apioauth2personaltoken.is_active
 	`
 	err := DatabaseConnection.QueryRow(queryString, tokenId).Scan(&result.Id, &result.Username, &result.GivenName, &result.FamilyName)
 	if err != nil {

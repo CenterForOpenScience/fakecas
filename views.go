@@ -238,3 +238,7 @@ func OAuth(c echo.Context) error {
 		Scope: scopes,
 	})
 }
+
+func OAuthRevoke(c echo.Context) error {
+	return c.NoContent(http.StatusNoContent)
+}

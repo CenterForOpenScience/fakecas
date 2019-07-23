@@ -51,6 +51,7 @@ func main() {
 	e.POST("/login", LoginPOST)
 	e.GET("/logout", Logout)
 	e.GET("/oauth2/profile", OAuth)
+	e.POST("/oauth2/revoke", OAuthRevoke)
 	e.GET("/p3/serviceValidate", ServiceValidate)
 
 	fmt.Println("Expecting database", *DatabaseName, "to be running at", *DatabaseAddress)

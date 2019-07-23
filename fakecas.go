@@ -15,7 +15,7 @@ import (
 var Version string
 
 var (
-	Host               = flag.String("host", "localhost:8080", "The host to bind to")
+	Host               = flag.String("host", "192.168.168.167:8080", "The host to bind to")
 	OSFHost            = flag.String("osfhost", "localhost:5000", "The osf host to bind to")
 	DatabaseName       = flag.String("dbname", "osf", "The name of your OSF database")
 	DatabaseAddress    = flag.String("dbaddress", "postgres://postgres@localhost:5432/osf?sslmode=disable", "The address of your postgres instance. ie: postgres://user:pass@127.0.0.1/dbname?other=args")

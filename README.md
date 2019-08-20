@@ -22,11 +22,11 @@ fakecas:
   stdin_open: true
 ```
 
-If you need the `develop` one, use `quay.io/centerforopenscience/fakecas:develop` instead. Run `docker-compose pull fakecas` to pull the new image before starting `docker-compose pull fakecas`.
+If you need the `develop` one, use `quay.io/centerforopenscience/fakecas:develop` instead. Run `docker-compose pull fakecas` to pull the latest image before starting fakeCAS.
 
 ## Pre-docker-compose
 
-Starting [19.0.0](https://github.com/CenterForOpenScience/fakecas/milestone/1), fakeCAS no longer provides downloadable binrary executables. Here is the last version [0.11.1](https://github.com/CenterForOpenScience/fakecas/releases/tag/0.11.1) that provides such a binary.
+Starting [19.0.0](https://github.com/CenterForOpenScience/fakecas/milestone/1), fakeCAS no longer provides downloadable binrary executables. Here is the last version [0.11.1](https://github.com/CenterForOpenScience/fakecas/releases/tag/0.11.1) that provides such a binary. However, the binary does not work with OSF starting [19.23.0](https://github.com/CenterForOpenScience/osf.io/releases/tag/19.23.0).
 
 # Develop fakeCAS
 

@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.0.1 (2019-08-20)
+===================
+
+- Update readme
+
 19.0.0 (2019-08-19)
 ===================
 

@@ -1,8 +1,0 @@
-package: github.com/CenterForOpenScience/fakecas
-import:
-- package: github.com/labstack/echo
-  subpackages:
-  - middleware
-- package: github.com/lib/pq
-- package: github.com/labstack/gommon
-  version: 0.1.0

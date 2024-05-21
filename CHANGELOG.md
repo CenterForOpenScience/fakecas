@@ -2,7 +2,7 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
-20.0.0 (2024-05-20)
+24.0.0 (2024-05-20)
 ===================
 
 - Glide was replaced with go's built-in dependency manager
